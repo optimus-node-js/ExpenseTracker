@@ -1,0 +1,138 @@
+Build a complete, professional-grade, mobile-responsive expense tracker web application tailored for Indian users with a modern dashboard, powerful automation features, and advanced data handling capabilities. The application must offer a beautifully animated light/dark mode toggle, real-time data visualizations, and support for bank statement uploads (PDF or Excel).
+
+🌟 Key Features Overview:
+🔹 User Interface (Frontend):
+Fully responsive (mobile-first) UI compatible with all screen sizes.
+
+Built using React.js (or Next.js) with TailwindCSS or ShadCN + Tailwind for styling.
+
+Animated dark/light mode toggle with persistent preference storage (localStorage).
+
+Clean and minimal dashboard using Indian-themed color palettes (saffron, green, blue, etc.).
+
+Floating action button (FAB) on mobile for “Add Expense” and quick actions.
+
+Glassmorphism or Neobrutalist UI for modern visual appeal.
+
+🔹 Dashboard & Analytics:
+Summary Cards for:
+
+Total Income
+
+Total Expenses
+
+Current Month's Savings
+
+Budget Utilization
+
+Visuals (using Recharts or Chart.js):
+
+Pie chart for category-wise breakdown
+
+Line/bar chart for monthly trends
+
+Progress bars for budget goals
+
+Recent Transactions Table (sortable/filterable)
+
+🔹 Expense Management:
+Add/edit/delete/view transactions
+
+Categories: Food, Travel, Rent, Bills, EMI, Medical, Shopping, Subscriptions, Misc.
+
+Support for payment modes: UPI, Cash, Card, Wallet, NetBanking
+
+Set monthly/weekly budgets per category
+
+Automatic alerts when close to budget limits
+
+Tag expenses with labels (e.g., "Work", "Personal", "Reimbursable")
+
+🔹 Bank Statement Upload & Parsing:
+Users can upload bank statements in PDF or Excel (.xlsx/.xls) format
+
+If file is password protected, user provides password via secure .env variable (predefined or prompted)
+
+Use backend (Node.js/NestJS or Python/Flask) with:
+
+pdfplumber or PyMuPDF for PDF parsing
+
+pandas or openpyxl for Excel parsing
+
+Extracts:
+
+Transaction Date
+
+Description
+
+Amount
+
+Transaction Type (credit/debit)
+
+Reference Number (if available)
+
+All parsed data is cleaned, normalized, and added to MongoDB
+
+Duplicate transaction prevention:
+
+Before inserting, backend checks for existing entries with same:
+
+Date + Amount + Description
+
+Avoids storing/showing duplicate transactions
+
+🔹 Database & Backend (MongoDB + API):
+Use MongoDB (connection string to be provided via .env)
+
+RESTful API (NestJS preferred or Flask)
+
+Modular backend architecture with services for:
+
+User auth (if needed)
+
+Expense CRUD
+
+Budget tracking
+
+Statement parsing & deduplication logic
+
+Middleware to auto-detect and prevent duplicate entries
+
+Password-protected endpoints if hosted publicly
+
+🔹 Other Features:
+Export transactions to CSV or PDF
+
+Date-wise and category-wise filtering
+
+Search bar to find specific transactions
+
+Optionally support multiple user accounts (auth-ready)
+
+Use Indian currency formatting (₹) and date formatting (DD/MM/YYYY)
+
+Responsive loading animations, toast notifications, and confirmation dialogs
+
+🔹 Tech Stack Suggestions:
+Frontend: React.js (Next.js optional), TailwindCSS, ShadCN, Chart.js/Recharts
+
+Backend: NestJS (Node.js) or Flask (Python)
+
+Parsing: pdfplumber, PyMuPDF, pandas, openpyxl
+
+Database: MongoDB Atlas or self-hosted
+
+Auth: Optional – JWT or Firebase
+
+🧪 Sample Use Case:
+User opens dashboard → toggles dark mode with smooth animation.
+
+Uploads SBI bank statement PDF (with password) → app extracts all transaction entries.
+
+Backend filters out duplicates and stores only new transactions in MongoDB.
+
+Dashboard auto-updates with charts and summary metrics.
+
+User filters data to see “Food” expenses last month → exports it as CSV.
+
+Focus on delivering a world-class, smooth, animated, Indian user-friendly experience that works great on mobile as well as desktop.
