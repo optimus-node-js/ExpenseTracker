@@ -4,6 +4,7 @@ import { ExpensePieChart } from "@/components/dashboard/ExpensePieChart";
 import { MonthlyTrendChart } from "@/components/dashboard/MonthlyTrendChart";
 import { TransactionList } from "@/components/dashboard/TransactionList";
 import { Button } from "@/components/ui/button";
+import { Transaction } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   ArrowUpRight, 
@@ -106,11 +107,11 @@ export default function Dashboard() {
   });
 
   // Fetch transactions
-  const { data: transactions, isLoading: transactionsLoading } = useQuery({
+  const { data: transactions, isLoading: transactionsLoading } = useQuery<Transaction[]>({
     queryKey: ["/api/transactions"],
     queryFn: async () => {
       // Will fetch from the API in production
-      return [
+      const mockTransactions: Transaction[] = [
         {
           id: "1",
           description: "Grocery Shopping",
@@ -162,6 +163,7 @@ export default function Dashboard() {
           source: "Indian Oil",
         },
       ];
+      return mockTransactions;
     },
   });
 
@@ -228,7 +230,7 @@ export default function Dashboard() {
               </Badge>
             </div>
             <h3 className="text-2xl font-bold mt-2 font-heading">₹{(dashboardData?.totalExpenses || 0).toLocaleString()}</h3>
-            <p className="text-muted-foreground text-sm">Active Subscriptions</p>
+            <p className="text-muted-foreground text-sm">Monthly Expenses</p>
           </CardContent>
         </Card>
         
@@ -243,7 +245,7 @@ export default function Dashboard() {
               </Badge>
             </div>
             <h3 className="text-2xl font-bold mt-2 font-heading">₹{(dashboardData?.monthlySavings || 0).toLocaleString()}</h3>
-            <p className="text-muted-foreground text-sm">Pending Orders</p>
+            <p className="text-muted-foreground text-sm">Monthly Savings</p>
           </CardContent>
         </Card>
         
@@ -299,7 +301,15 @@ export default function Dashboard() {
                 <span className="text-xs text-muted-foreground">1.0</span>
                 <span className="text-xs text-muted-foreground">2.0+</span>
               </div>
-              <p className="text-sm mt-2"><span className="font-medium">{dashboardData?.cashFlow?.flowRatio.toFixed(2)}</span> - {dashboardData?.cashFlow?.flowRatio >= 1.5 ? "Excellent savings rate" : dashboardData?.cashFlow?.flowRatio >= 1.2 ? "Good savings rate" : "Needs improvement"}</p>
+              <p className="text-sm mt-2">
+                <span className="font-medium">{dashboardData?.cashFlow?.flowRatio?.toFixed(2) || '0.00'}</span> - {
+                (dashboardData?.cashFlow?.flowRatio || 0) >= 1.5 
+                  ? "Excellent savings rate" 
+                  : (dashboardData?.cashFlow?.flowRatio || 0) >= 1.2 
+                    ? "Good savings rate" 
+                    : "Needs improvement"
+                }
+              </p>
             </div>
           </CardContent>
         </Card>
