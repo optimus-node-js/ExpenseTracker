@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 210 100% 50%; /* Sky Blue */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 160 84% 39%; /* Teal */
+    --secondary-foreground: 0 0% 98%;
+    --accent: 262 83% 58%; /* Purple */
+    --accent-foreground: 0 0% 98%;
+    --success: 142 76% 36%; /* Green */
+    --success-foreground: 0 0% 98%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 210 100% 50%;
+    --radius: 0.5rem;
+
+    /* Chart colors */
+    --chart-1: 210 100% 50%; /* Sky Blue */
+    --chart-2: 160 84% 39%; /* Teal */
+    --chart-3: 262 83% 58%; /* Purple */
+    --chart-4: 32 94% 54%; /* Orange */
+    --chart-5: 142 76% 36%; /* Green */
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 100% 50%; /* Sky Blue */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 160 84% 39%; /* Teal */
+    --secondary-foreground: 0 0% 98%;
+    --accent: 262 83% 58%; /* Purple */
+    --accent-foreground: 0 0% 98%;
+    --success: 142 76% 36%; /* Green */
+    --success-foreground: 0 0% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 210 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+/* Glassmorphism */
+.glassmorphism {
+  @apply bg-opacity-80 backdrop-blur-sm border border-gray-200 dark:border-neutral-800;
+}
+
+/* Animations */
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  0% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Mobile Nav Fix for Bottom Padding */
+.has-mobile-nav {
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 768px) {
+  .has-mobile-nav {
+    padding-bottom: 0;
+  }
+}

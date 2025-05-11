@@ -1,0 +1,74 @@
+import { Link, useLocation } from "wouter";
+import { cn } from "@/lib/utils";
+import {
+  LayoutDashboard,
+  BarChart3,
+  PlusCircle,
+  User,
+  DollarSign
+} from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { TransactionForm } from "@/components/TransactionForm";
+
+const navItems = [
+  { icon: LayoutDashboard, label: "Dashboard", href: "/" },
+  { icon: DollarSign, label: "Transactions", href: "/transactions" },
+  { icon: BarChart3, label: "Analytics", href: "/analytics" },
+  { icon: User, label: "Profile", href: "/profile" },
+];
+
+export function MobileNav() {
+  const [location] = useLocation();
+  
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t shadow-lg z-10">
+      <div className="flex justify-around">
+        {navItems.map((item, index) => {
+          const isActive = location === item.href;
+          const Icon = item.icon;
+          
+          // Position FAB in the middle
+          if (index === 2) {
+            return (
+              <>
+                <Link key={item.href} href={item.href}>
+                  <a className={cn(
+                    "flex flex-col items-center py-3",
+                    isActive ? "text-primary" : "text-muted-foreground"
+                  )}>
+                    <Icon className="text-xl h-5 w-5" />
+                    <span className="text-xs mt-1">{item.label}</span>
+                  </a>
+                </Link>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <div className="flex relative">
+                      <div className="absolute -top-5 bg-primary rounded-full p-3 w-14 h-14 flex items-center justify-center text-white shadow-lg">
+                        <PlusCircle className="h-8 w-8" />
+                      </div>
+                    </div>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <TransactionForm />
+                  </DialogContent>
+                </Dialog>
+              </>
+            );
+          }
+          
+          return (
+            <Link key={item.href} href={item.href}>
+              <a className={cn(
+                "flex flex-col items-center py-3",
+                isActive ? "text-primary" : "text-muted-foreground"
+              )}>
+                <Icon className="text-xl h-5 w-5" />
+                <span className="text-xs mt-1">{item.label}</span>
+              </a>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
