@@ -157,32 +157,55 @@ export default function Analytics() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Analytics</h1>
-          <p className="text-muted-foreground mt-1">Gain insights into your spending patterns</p>
+          <h1 className="text-2xl md:text-3xl font-bold font-heading text-foreground">Financial Analysis</h1>
+          <p className="text-muted-foreground mt-1">Visualize your financial data across different dimensions</p>
         </div>
         
-        <div className="flex items-center space-x-2">
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select time range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="thisMonth">This Month</SelectItem>
-              <SelectItem value="lastMonth">Last Month</SelectItem>
-              <SelectItem value="last3Months">Last 3 Months</SelectItem>
-              <SelectItem value="last6Months">Last 6 Months</SelectItem>
-              <SelectItem value="thisYear">This Year</SelectItem>
-              <SelectItem value="custom">Custom Range</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex flex-wrap items-center gap-2 md:justify-end">
+          <div className="flex items-center bg-muted/50 rounded-lg p-1 border border-border/40">
+            <Button 
+              variant={timeRange === "thisMonth" ? "secondary" : "ghost"} 
+              size="sm"
+              onClick={() => setTimeRange("thisMonth")}
+              className="text-xs h-8"
+            >
+              This Month
+            </Button>
+            <Button 
+              variant={timeRange === "lastMonth" ? "secondary" : "ghost"} 
+              size="sm"
+              onClick={() => setTimeRange("lastMonth")}
+              className="text-xs h-8"
+            >
+              Last Month
+            </Button>
+            <Button 
+              variant={timeRange === "last3Months" ? "secondary" : "ghost"} 
+              size="sm"
+              onClick={() => setTimeRange("last3Months")}
+              className="text-xs h-8"
+            >
+              Quarter
+            </Button>
+            <Button 
+              variant={timeRange === "thisYear" ? "secondary" : "ghost"} 
+              size="sm"
+              onClick={() => setTimeRange("thisYear")}
+              className="text-xs h-8"
+            >
+              Year
+            </Button>
+          </div>
           
-          <Button variant="outline" size="icon" className="hidden md:flex">
-            <CalendarDays className="h-4 w-4" />
-          </Button>
-          
-          <Button variant="outline" size="icon" className="hidden md:flex">
-            <Download className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="icon" className="h-8 w-8">
+              <CalendarDays className="h-4 w-4" />
+            </Button>
+            
+            <Button variant="outline" size="icon" className="h-8 w-8">
+              <Download className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
       
@@ -254,12 +277,34 @@ export default function Analytics() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="overview" value={activeChart} onValueChange={setActiveChart} className="w-full">
-            <TabsList className="mb-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="category">By Category</TabsTrigger>
-              <TabsTrigger value="trend">Spending Trend</TabsTrigger>
-              <TabsTrigger value="payment">Payment Methods</TabsTrigger>
-            </TabsList>
+            <div className="border-b mb-4">
+              <TabsList className="bg-transparent p-0 h-auto mb-0 gap-4 border-0">
+                <TabsTrigger 
+                  value="overview" 
+                  className="pb-2 px-1 rounded-none data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary"
+                >
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="category" 
+                  className="pb-2 px-1 rounded-none data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary"
+                >
+                  By Category
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="trend" 
+                  className="pb-2 px-1 rounded-none data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary"
+                >
+                  Spending Trend
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="payment" 
+                  className="pb-2 px-1 rounded-none data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary"
+                >
+                  Payment Methods
+                </TabsTrigger>
+              </TabsList>
+            </div>
             
             <TabsContent value="overview" className="mt-0">
               <div className="h-[400px] w-full">

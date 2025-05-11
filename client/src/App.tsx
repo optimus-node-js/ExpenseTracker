@@ -8,6 +8,7 @@ import Dashboard from "@/pages/Dashboard";
 import Transactions from "@/pages/Transactions";
 import Analytics from "@/pages/Analytics";
 import Budget from "@/pages/Budget";
+import Profile from "@/pages/Profile";
 import UploadStatements from "@/pages/UploadStatements";
 import NotFound from "@/pages/not-found";
 
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/analytics" component={Analytics} />
       <Route path="/budget" component={Budget} />
       <Route path="/upload" component={UploadStatements} />
+      <Route path="/profile" component={Profile} />
       <Route component={NotFound} />
     </Switch>
   );
