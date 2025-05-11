@@ -1,3 +1,4 @@
+import React from "react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import {
@@ -30,19 +31,19 @@ export function MobileNav() {
           // Position FAB in the middle
           if (index === 2) {
             return (
-              <>
-                <Link key={item.href} href={item.href}>
-                  <a className={cn(
-                    "flex flex-col items-center py-3",
+              <React.Fragment key={`nav-item-${index}`}>
+                <Link href={item.href}>
+                  <div className={cn(
+                    "flex flex-col items-center py-3 cursor-pointer",
                     isActive ? "text-primary" : "text-muted-foreground"
                   )}>
                     <Icon className="text-xl h-5 w-5" />
                     <span className="text-xs mt-1">{item.label}</span>
-                  </a>
+                  </div>
                 </Link>
-                <Dialog>
+                <Dialog key="add-transaction-dialog">
                   <DialogTrigger asChild>
-                    <div className="flex relative">
+                    <div className="flex relative cursor-pointer">
                       <div className="absolute -top-5 bg-primary rounded-full p-3 w-14 h-14 flex items-center justify-center text-white shadow-lg">
                         <PlusCircle className="h-8 w-8" />
                       </div>
@@ -52,19 +53,19 @@ export function MobileNav() {
                     <TransactionForm />
                   </DialogContent>
                 </Dialog>
-              </>
+              </React.Fragment>
             );
           }
           
           return (
-            <Link key={item.href} href={item.href}>
-              <a className={cn(
-                "flex flex-col items-center py-3",
+            <Link key={`nav-item-${index}`} href={item.href}>
+              <div className={cn(
+                "flex flex-col items-center py-3 cursor-pointer",
                 isActive ? "text-primary" : "text-muted-foreground"
               )}>
                 <Icon className="text-xl h-5 w-5" />
                 <span className="text-xs mt-1">{item.label}</span>
-              </a>
+              </div>
             </Link>
           );
         })}

@@ -38,9 +38,9 @@ export function Sidebar() {
             return (
               <li key={item.href}>
                 <Link href={item.href}>
-                  <a
+                  <div
                     className={cn(
-                      "flex items-center px-4 py-3 rounded-lg font-medium transition-colors duration-200",
+                      "flex items-center px-4 py-3 rounded-lg font-medium transition-colors duration-200 cursor-pointer",
                       isActive 
                         ? "text-foreground bg-muted dark:bg-muted"
                         : "text-muted-foreground hover:bg-muted dark:hover:bg-muted"
@@ -48,7 +48,7 @@ export function Sidebar() {
                   >
                     <Icon className={cn("mr-3 h-5 w-5", isActive ? "text-primary" : "text-muted-foreground")} />
                     <span>{item.label}</span>
-                  </a>
+                  </div>
                 </Link>
               </li>
             );
