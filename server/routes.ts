@@ -6,7 +6,7 @@ import { storage as memStorage } from "./storage";
 import multer from "multer";
 import { processStatementFile } from "./utils/transaction-parser";
 import { body, param, validationResult } from "express-validator";
-import { insertTransactionSchema, insertBudgetSchema } from "@shared/schema";
+import { insertTransactionSchema, insertBudgetSchema, insertSubscriptionSchema } from "@shared/schema";
 
 // Create a MongoDB storage instance or use in-memory storage as fallback
 const storage = isConnected() ? new MongoDBStorage() : memStorage;
@@ -480,6 +480,236 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         res.status(500).json({ message: "Failed to process statement: " + error.message });
+      }
+    }
+  );
+
+  // ===== Subscription Endpoints =====
+  
+  // Get all subscriptions
+  app.get("/api/subscriptions", async (req, res) => {
+    try {
+      const userId = 1; // Using userId 1 for now
+      const subscriptions = await storage.getAllSubscriptions(userId);
+      res.json(subscriptions);
+    } catch (error) {
+      console.error("Error getting subscriptions:", error);
+      res.status(500).json({ message: "Failed to get subscriptions" });
+    }
+  });
+
+  // Get a subscription by ID
+  app.get(
+    "/api/subscriptions/:id",
+    [
+      param("id").isInt().withMessage("Subscription ID must be an integer")
+    ],
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      try {
+        const id = parseInt(req.params.id);
+        const subscription = await storage.getSubscription(id);
+        
+        if (!subscription) {
+          return res.status(404).json({ message: "Subscription not found" });
+        }
+        
+        res.json(subscription);
+      } catch (error) {
+        console.error("Error getting subscription:", error);
+        res.status(500).json({ message: "Failed to get subscription" });
+      }
+    }
+  );
+
+  // Create a new subscription
+  app.post(
+    "/api/subscriptions",
+    [
+      body("name").notEmpty().withMessage("Name is required"),
+      body("amount").isFloat({ min: 0 }).withMessage("Amount must be a positive number"),
+      body("billingCycle").isIn(["weekly", "monthly", "quarterly", "yearly"]).withMessage("Billing cycle must be one of: weekly, monthly, quarterly, yearly"),
+      body("startDate").isISO8601().withMessage("Start date must be a valid date"),
+      body("nextBillingDate").isISO8601().withMessage("Next billing date must be a valid date"),
+      body("category").notEmpty().withMessage("Category is required"),
+      body("paymentMethod").notEmpty().withMessage("Payment method is required"),
+      body("autoRenew").isBoolean().withMessage("Auto renew must be a boolean"),
+      body("active").isBoolean().withMessage("Active must be a boolean")
+    ],
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      try {
+        // Validate with zod schema
+        const validatedData = insertSubscriptionSchema.parse({
+          ...req.body,
+          userId: 1, // Using userId 1 for now
+          startDate: new Date(req.body.startDate),
+          nextBillingDate: new Date(req.body.nextBillingDate)
+        });
+        
+        const subscription = await storage.createSubscription(validatedData);
+        res.status(201).json(subscription);
+      } catch (error) {
+        console.error("Error creating subscription:", error);
+        res.status(500).json({ message: "Failed to create subscription" });
+      }
+    }
+  );
+
+  // Update a subscription
+  app.patch(
+    "/api/subscriptions/:id",
+    [
+      param("id").isInt().withMessage("Subscription ID must be an integer"),
+      body("name").optional().notEmpty().withMessage("Name cannot be empty"),
+      body("amount").optional().isFloat({ min: 0 }).withMessage("Amount must be a positive number"),
+      body("billingCycle").optional().isIn(["weekly", "monthly", "quarterly", "yearly"]).withMessage("Billing cycle must be one of: weekly, monthly, quarterly, yearly"),
+      body("startDate").optional().isISO8601().withMessage("Start date must be a valid date"),
+      body("nextBillingDate").optional().isISO8601().withMessage("Next billing date must be a valid date"),
+      body("category").optional().notEmpty().withMessage("Category cannot be empty"),
+      body("paymentMethod").optional().notEmpty().withMessage("Payment method cannot be empty"),
+      body("autoRenew").optional().isBoolean().withMessage("Auto renew must be a boolean"),
+      body("active").optional().isBoolean().withMessage("Active must be a boolean")
+    ],
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      try {
+        const id = parseInt(req.params.id);
+        const existingSubscription = await storage.getSubscription(id);
+        
+        if (!existingSubscription) {
+          return res.status(404).json({ message: "Subscription not found" });
+        }
+        
+        // Prepare update data with proper date conversion
+        const updateData = {
+          ...existingSubscription,
+          ...req.body,
+          userId: 1, // Using userId 1 for now
+          id: undefined, // Remove id as it's not needed for update
+          createdAt: undefined // Remove createdAt as it's not needed for update
+        };
+        
+        // Convert date strings to Date objects if present
+        if (req.body.startDate) {
+          updateData.startDate = new Date(req.body.startDate);
+        }
+        
+        if (req.body.nextBillingDate) {
+          updateData.nextBillingDate = new Date(req.body.nextBillingDate);
+        }
+        
+        const updatedSubscription = await storage.updateSubscription(id, updateData);
+        
+        if (!updatedSubscription) {
+          return res.status(404).json({ message: "Failed to update subscription" });
+        }
+        
+        res.json(updatedSubscription);
+      } catch (error) {
+        console.error("Error updating subscription:", error);
+        res.status(500).json({ message: "Failed to update subscription" });
+      }
+    }
+  );
+
+  // Delete a subscription
+  app.delete(
+    "/api/subscriptions/:id",
+    [
+      param("id").isInt().withMessage("Subscription ID must be an integer")
+    ],
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      try {
+        const id = parseInt(req.params.id);
+        const success = await storage.deleteSubscription(id);
+        
+        if (!success) {
+          return res.status(404).json({ message: "Subscription not found" });
+        }
+        
+        res.status(204).send();
+      } catch (error) {
+        console.error("Error deleting subscription:", error);
+        res.status(500).json({ message: "Failed to delete subscription" });
+      }
+    }
+  );
+
+  // ===== User Profile Endpoints =====
+  
+  // Get user profile
+  app.get("/api/user/profile", async (req, res) => {
+    try {
+      const userId = 1; // Using userId 1 for now
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Don't send password in the response
+      const { password, ...userProfile } = user;
+      
+      res.json(userProfile);
+    } catch (error) {
+      console.error("Error getting user profile:", error);
+      res.status(500).json({ message: "Failed to get user profile" });
+    }
+  });
+
+  // Update user profile
+  app.patch(
+    "/api/user/profile",
+    [
+      body("fullName").optional().notEmpty().withMessage("Full name cannot be empty"),
+      body("email").optional().isEmail().withMessage("Email must be valid")
+    ],
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      try {
+        const userId = 1; // Using userId 1 for now
+        const user = await storage.getUser(userId);
+        
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        
+        // For now, since we don't have a full updateUser method, we'll just return the user
+        // with the updated fields (in a real app we would update the database)
+        const updatedUser = {
+          ...user,
+          ...req.body
+        };
+        
+        // Don't send password in the response
+        const { password, ...userProfile } = updatedUser;
+        
+        res.json(userProfile);
+      } catch (error) {
+        console.error("Error updating user profile:", error);
+        res.status(500).json({ message: "Failed to update user profile" });
       }
     }
   );

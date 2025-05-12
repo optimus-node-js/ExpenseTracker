@@ -492,4 +492,185 @@ export class MongoDBStorage implements IStorage {
       return undefined;
     }
   }
+  
+  // Subscription methods
+  async getSubscription(id: number): Promise<Subscription | undefined> {
+    try {
+      const subscription = await SubscriptionModel.findOne({ localId: id });
+      if (!subscription) return undefined;
+      
+      return {
+        id,
+        userId: Number(subscription.userId) || 0,
+        name: subscription.name,
+        description: subscription.description || null,
+        amount: subscription.amount.toString(),
+        billingCycle: subscription.billingCycle,
+        startDate: subscription.startDate,
+        nextBillingDate: subscription.nextBillingDate,
+        category: subscription.category,
+        paymentMethod: subscription.paymentMethod,
+        autoRenew: subscription.autoRenew,
+        active: subscription.active,
+        reminderDays: subscription.reminderDays || null,
+        notes: subscription.notes || null,
+        createdAt: subscription.createdAt
+      };
+    } catch (error) {
+      console.error('Error getting subscription:', error);
+      return undefined;
+    }
+  }
+  
+  async getAllSubscriptions(userId: number): Promise<Subscription[]> {
+    try {
+      // Find the user to get their MongoDB _id
+      const user = await UserModel.findOne({ id: userId });
+      if (!user) return [];
+      
+      const subscriptions = await SubscriptionModel.find({ userId: user._id });
+      
+      return subscriptions.map(s => ({
+        id: s.localId || 0,
+        userId,
+        name: s.name,
+        description: s.description || null,
+        amount: s.amount.toString(),
+        billingCycle: s.billingCycle,
+        startDate: s.startDate,
+        nextBillingDate: s.nextBillingDate,
+        category: s.category,
+        paymentMethod: s.paymentMethod,
+        autoRenew: s.autoRenew,
+        active: s.active,
+        reminderDays: s.reminderDays || null,
+        notes: s.notes || null,
+        createdAt: s.createdAt
+      }));
+    } catch (error) {
+      console.error('Error getting all subscriptions:', error);
+      return [];
+    }
+  }
+  
+  async createSubscription(subscription: InsertSubscription): Promise<Subscription> {
+    try {
+      // Find the user to get their MongoDB _id
+      const user = await UserModel.findOne({ id: subscription.userId });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      
+      // Find the highest existing localId and increment for new subscription
+      const highestIdSubscription = await SubscriptionModel.findOne({})
+        .sort({ localId: -1 })
+        .limit(1);
+      
+      const nextId = highestIdSubscription && highestIdSubscription.localId 
+        ? highestIdSubscription.localId + 1 
+        : 1;
+      
+      const newSubscription = new SubscriptionModel({
+        userId: user._id,
+        localId: nextId,
+        name: subscription.name,
+        description: subscription.description,
+        amount: subscription.amount,
+        billingCycle: subscription.billingCycle,
+        startDate: subscription.startDate,
+        nextBillingDate: subscription.nextBillingDate,
+        category: subscription.category,
+        paymentMethod: subscription.paymentMethod,
+        autoRenew: subscription.autoRenew !== false,
+        active: subscription.active !== false,
+        reminderDays: subscription.reminderDays || 3,
+        notes: subscription.notes
+      });
+      
+      const savedSubscription = await newSubscription.save();
+      
+      return {
+        id: nextId,
+        userId: subscription.userId,
+        name: savedSubscription.name,
+        description: savedSubscription.description || null,
+        amount: savedSubscription.amount.toString(),
+        billingCycle: savedSubscription.billingCycle,
+        startDate: savedSubscription.startDate,
+        nextBillingDate: savedSubscription.nextBillingDate,
+        category: savedSubscription.category,
+        paymentMethod: savedSubscription.paymentMethod,
+        autoRenew: savedSubscription.autoRenew,
+        active: savedSubscription.active,
+        reminderDays: savedSubscription.reminderDays || null,
+        notes: savedSubscription.notes || null,
+        createdAt: savedSubscription.createdAt
+      };
+    } catch (error) {
+      console.error('Error creating subscription:', error);
+      throw new Error('Failed to create subscription');
+    }
+  }
+  
+  async updateSubscription(id: number, subscription: InsertSubscription): Promise<Subscription | undefined> {
+    try {
+      // Find the user to get their MongoDB _id
+      const user = await UserModel.findOne({ id: subscription.userId });
+      if (!user) {
+        return undefined;
+      }
+      
+      const updatedSubscription = await SubscriptionModel.findOneAndUpdate(
+        { localId: id },
+        {
+          name: subscription.name,
+          description: subscription.description,
+          amount: subscription.amount,
+          billingCycle: subscription.billingCycle,
+          startDate: subscription.startDate,
+          nextBillingDate: subscription.nextBillingDate,
+          category: subscription.category,
+          paymentMethod: subscription.paymentMethod,
+          autoRenew: subscription.autoRenew,
+          active: subscription.active,
+          reminderDays: subscription.reminderDays,
+          notes: subscription.notes
+        },
+        { new: true }
+      );
+      
+      if (!updatedSubscription) return undefined;
+      
+      return {
+        id,
+        userId: subscription.userId,
+        name: updatedSubscription.name,
+        description: updatedSubscription.description || null,
+        amount: updatedSubscription.amount.toString(),
+        billingCycle: updatedSubscription.billingCycle,
+        startDate: updatedSubscription.startDate,
+        nextBillingDate: updatedSubscription.nextBillingDate,
+        category: updatedSubscription.category,
+        paymentMethod: updatedSubscription.paymentMethod,
+        autoRenew: updatedSubscription.autoRenew,
+        active: updatedSubscription.active,
+        reminderDays: updatedSubscription.reminderDays || null,
+        notes: updatedSubscription.notes || null,
+        createdAt: updatedSubscription.createdAt
+      };
+    } catch (error) {
+      console.error('Error updating subscription:', error);
+      return undefined;
+    }
+  }
+  
+  async deleteSubscription(id: number): Promise<boolean> {
+    try {
+      const result = await SubscriptionModel.deleteOne({ localId: id });
+      return result.deletedCount ? result.deletedCount > 0 : false;
+    } catch (error) {
+      console.error('Error deleting subscription:', error);
+      return false;
+    }
+  }
 }
