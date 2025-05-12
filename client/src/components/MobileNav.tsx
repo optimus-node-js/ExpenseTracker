@@ -33,7 +33,7 @@ export function MobileNav() {
           // Position FAB in the middle
           if (index === 2) {
             return (
-              <React.Fragment key={`nav-item-${index}`}>
+              <div key={`nav-item-${index}`} className="flex flex-col">
                 <Link href={item.href}>
                   <div className={cn(
                     "flex flex-col items-center py-3 cursor-pointer",
@@ -43,7 +43,7 @@ export function MobileNav() {
                     <span className="text-xs mt-1">{item.label}</span>
                   </div>
                 </Link>
-                <Dialog key="add-transaction-dialog">
+                <Dialog>
                   <DialogTrigger asChild>
                     <div className="flex relative cursor-pointer">
                       <div className="absolute -top-5 bg-primary rounded-full p-3 w-14 h-14 flex items-center justify-center text-white shadow-lg">
@@ -55,7 +55,7 @@ export function MobileNav() {
                     <TransactionForm />
                   </DialogContent>
                 </Dialog>
-              </React.Fragment>
+              </div>
             );
           }
           
