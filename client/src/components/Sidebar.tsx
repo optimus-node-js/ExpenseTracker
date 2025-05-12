@@ -16,6 +16,7 @@ const navItems = [
   { icon: DollarSign, label: "Transactions", href: "/transactions" },
   { icon: BarChart3, label: "Analytics", href: "/analytics" },
   { icon: CreditCard, label: "Budgets", href: "/budget" },
+  { icon: CalendarClock, label: "Subscriptions", href: "/subscriptions" },
   { icon: Upload, label: "Upload Statements", href: "/upload" },
 ];
 

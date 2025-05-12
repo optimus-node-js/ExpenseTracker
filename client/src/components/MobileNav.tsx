@@ -6,7 +6,8 @@ import {
   BarChart3,
   PlusCircle,
   User,
-  DollarSign
+  DollarSign,
+  CalendarClock
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { TransactionForm } from "@/components/TransactionForm";
@@ -15,6 +16,7 @@ const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/" },
   { icon: DollarSign, label: "Transactions", href: "/transactions" },
   { icon: BarChart3, label: "Analytics", href: "/analytics" },
+  { icon: CalendarClock, label: "Subscriptions", href: "/subscriptions" },
   { icon: User, label: "Profile", href: "/profile" },
 ];
 
