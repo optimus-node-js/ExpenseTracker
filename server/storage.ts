@@ -41,17 +41,20 @@ export class MemStorage implements IStorage {
   private transactions: Map<number, Transaction>;
   private budgets: Map<number, Budget>;
   private bankStatements: Map<number, BankStatement>;
+  private subscriptions: Map<number, Subscription>;
   
   private userId: number = 1;
   private transactionId: number = 1;
   private budgetId: number = 1;
   private bankStatementId: number = 1;
+  private subscriptionId: number = 1;
 
   constructor() {
     this.users = new Map();
     this.transactions = new Map();
     this.budgets = new Map();
     this.bankStatements = new Map();
+    this.subscriptions = new Map();
     
     // Initialize with a default user
     this.users.set(1, {
@@ -187,6 +190,49 @@ export class MemStorage implements IStorage {
     };
     this.bankStatements.set(id, newStatement);
     return newStatement;
+  }
+  
+  // Subscription methods
+  async getSubscription(id: number): Promise<Subscription | undefined> {
+    return this.subscriptions.get(id);
+  }
+  
+  async getAllSubscriptions(userId: number): Promise<Subscription[]> {
+    return Array.from(this.subscriptions.values())
+      .filter(subscription => subscription.userId === userId);
+  }
+  
+  async createSubscription(subscription: InsertSubscription): Promise<Subscription> {
+    const id = this.subscriptionId++;
+    
+    const newSubscription: Subscription = {
+      ...subscription,
+      id,
+      createdAt: new Date()
+    };
+    
+    this.subscriptions.set(id, newSubscription);
+    return newSubscription;
+  }
+  
+  async updateSubscription(id: number, subscription: InsertSubscription): Promise<Subscription | undefined> {
+    const existingSubscription = this.subscriptions.get(id);
+    if (!existingSubscription) {
+      return undefined;
+    }
+    
+    const updatedSubscription: Subscription = {
+      ...existingSubscription,
+      ...subscription,
+      id
+    };
+    
+    this.subscriptions.set(id, updatedSubscription);
+    return updatedSubscription;
+  }
+  
+  async deleteSubscription(id: number): Promise<boolean> {
+    return this.subscriptions.delete(id);
   }
   
   // Check for duplicate transactions based on date, amount, and description

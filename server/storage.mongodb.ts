@@ -1,6 +1,6 @@
 import { IStorage } from './storage';
-import { User as UserModel, Transaction as TransactionModel, Budget as BudgetModel, BankStatement as BankStatementModel } from './models';
-import { User, InsertUser, Transaction, InsertTransaction, Budget, InsertBudget, BankStatement, InsertBankStatement } from "@shared/schema";
+import { User as UserModel, Transaction as TransactionModel, Budget as BudgetModel, BankStatement as BankStatementModel, Subscription as SubscriptionModel } from './models';
+import { User, InsertUser, Transaction, InsertTransaction, Budget, InsertBudget, BankStatement, InsertBankStatement, Subscription, InsertSubscription } from "@shared/schema";
 import mongoose from 'mongoose';
 
 export class MongoDBStorage implements IStorage {
