@@ -3,6 +3,7 @@ import { IUser } from './User';
 
 export interface ITransaction extends Document {
   userId: IUser['_id'];
+  localId?: number; // Numeric ID for backwards compatibility
   description: string;
   amount: number;
   date: Date;
@@ -21,6 +22,10 @@ const TransactionSchema: Schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  localId: {
+    type: Number,
+    index: true
   },
   description: {
     type: String,

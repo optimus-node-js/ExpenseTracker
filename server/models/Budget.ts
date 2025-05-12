@@ -3,6 +3,7 @@ import { IUser } from './User';
 
 export interface IBudget extends Document {
   userId: IUser['_id'];
+  localId?: number; // Numeric ID for backwards compatibility
   category: string;
   amount: number;
   period: 'weekly' | 'monthly';
@@ -16,6 +17,10 @@ const BudgetSchema: Schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  localId: {
+    type: Number,
+    index: true
   },
   category: {
     type: String,
