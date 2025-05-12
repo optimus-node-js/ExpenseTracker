@@ -111,17 +111,14 @@ export function EnhancedTransactionForm({
         (transactionType === "income" ? incomeCategories[0] : expenseCategories[0]),
       type: defaultValues?.type || transactionType,
       paymentMode: defaultValues?.paymentMode || paymentModes[0],
-      notes: defaultValues?.notes || "",
-      userId: 1, // Using userId 1 for now
+      notes: defaultValues?.notes || ""
+      // No need to specify userId, it will be set on the server
     },
   });
 
   // Transaction creation mutation
   const mutation = useMutation({
-    mutationFn: (data: TransactionFormValues) => apiRequest('/api/transactions', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+    mutationFn: (data: TransactionFormValues) => apiRequest('POST', '/api/transactions', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
       queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
