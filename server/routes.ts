@@ -691,11 +691,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/user/profile", async (req, res) => {
     try {
       // In a real application, this would come from session/auth middleware
-      // For now, we'll query the first user in the database
-      const user = await storage.getUserByUsername("user");
+      // For now, we'll create a default user if one doesn't exist
+      let user = await storage.getUserByUsername("user");
       
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        // Create a default user
+        user = await storage.createUser({
+          username: "user",
+          password: "password", // In a real app, this would be hashed
+          email: "user@example.com",
+          fullName: "Sample User"
+        });
+        console.log("Created default user:", user.id);
       }
       
       // Don't send password in the response
@@ -722,8 +729,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       try {
-        const userId = 1; // Using userId 1 for now
-        const user = await storage.getUser(userId);
+        // Get the user by username since we're not using sessions yet
+        const user = await storage.getUserByUsername("user");
         
         if (!user) {
           return res.status(404).json({ message: "User not found" });
