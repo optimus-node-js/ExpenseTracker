@@ -339,13 +339,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get dashboard data
   app.get("/api/dashboard", async (req, res) => {
     try {
-      const userId = 1; // Using userId 1 for now
+      // Get the active user
+      const user = await storage.getUserByUsername("user");
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
       
       // Get all transactions for the user
-      const transactions = await storage.getAllTransactions(userId);
+      const transactions = await storage.getAllTransactions(user.id);
       
       // Get all budgets for the user
-      const budgets = await storage.getAllBudgets(userId);
+      const budgets = await storage.getAllBudgets(user.id);
       
       // Calculate totals
       const totalIncome = transactions
@@ -440,8 +444,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/analytics", async (req, res) => {
     try {
-      const userId = 1; // Using userId 1 for now
-      const transactions = await storage.getAllTransactions(userId);
+      // Get the active user
+      const user = await storage.getUserByUsername("user");
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const transactions = await storage.getAllTransactions(user.id);
       
       // Summary data calculation would happen here
       // For now, return structured mock data as shown in the Analytics.tsx component
@@ -477,10 +486,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const file = req.file;
         const password = req.body.password;
-        const userId = 1; // Using userId 1 for now
+        
+        // Get the active user
+        const user = await storage.getUserByUsername("user");
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
         
         // Process the statement file
-        const result = await processStatementFile(file, password, userId, storage);
+        const result = await processStatementFile(file, password, user.id, storage);
         
         res.json({
           message: "File processed successfully",
