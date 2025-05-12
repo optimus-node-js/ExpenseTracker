@@ -658,8 +658,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user profile
   app.get("/api/user/profile", async (req, res) => {
     try {
-      const userId = 1; // Using userId 1 for now
-      const user = await storage.getUser(userId);
+      // In a real application, this would come from session/auth middleware
+      // For now, we'll query the first user in the database
+      const user = await storage.getUserByUsername("user");
       
       if (!user) {
         return res.status(404).json({ message: "User not found" });

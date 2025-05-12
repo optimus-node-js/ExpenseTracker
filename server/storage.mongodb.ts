@@ -455,19 +455,22 @@ export class MongoDBStorage implements IStorage {
     try {
       const transactionDate = new Date(transaction.date);
       
-      // Find the user to get their MongoDB _id
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      // Find the user by numeric ID
+      const user = await UserModel.findOne({ id: transaction.userId });
       if (!user) return undefined;
       
-      // Query for potential duplicates
+      // Query for potential duplicates with more accurate detection
       const potentialDuplicate = await TransactionModel.findOne({
         userId: user._id,
         amount: transaction.amount,
         description: transaction.description,
+        // Check for transactions on the same day
         date: {
-          $gte: new Date(transactionDate.setHours(0, 0, 0, 0)),
-          $lt: new Date(transactionDate.setHours(23, 59, 59, 999))
-        }
+          $gte: new Date(new Date(transaction.date).setHours(0, 0, 0, 0)),
+          $lt: new Date(new Date(transaction.date).setHours(23, 59, 59, 999))
+        },
+        // Add reference field for more accurate duplicate detection if available
+        ...(transaction.reference ? { reference: transaction.reference } : {})
       });
       
       if (!potentialDuplicate) return undefined;
