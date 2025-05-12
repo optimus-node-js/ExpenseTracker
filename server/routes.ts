@@ -42,7 +42,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all transactions
   app.get("/api/transactions", async (req, res) => {
     try {
-      const transactions = await storage.getAllTransactions(1); // Using userId 1 for now
+      // Get the active user
+      const user = await storage.getUserByUsername("user");
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const transactions = await storage.getAllTransactions(user.id);
       res.json(transactions);
     } catch (error) {
       console.error("Error getting transactions:", error);
@@ -92,8 +98,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       try {
+        // Get the active user
+        const user = await storage.getUserByUsername("user");
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        
         const transaction = await storage.createTransaction({
-          userId: 1, // Using userId 1 for now
+          userId: user.id,
           ...req.body,
           date: new Date(req.body.date),
         });
@@ -124,9 +136,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       try {
+        // Get the active user
+        const user = await storage.getUserByUsername("user");
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        
         const id = parseInt(req.params.id);
         const transaction = await storage.updateTransaction(id, {
-          userId: 1, // Using userId 1 for now
+          userId: user.id,
           ...req.body,
           date: new Date(req.body.date),
         });
