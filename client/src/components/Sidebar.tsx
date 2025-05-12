@@ -8,6 +8,7 @@ import {
   CreditCard,
   Upload,
   DollarSign,
+  CalendarClock,
 } from "lucide-react";
 
 const navItems = [

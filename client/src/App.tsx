@@ -10,6 +10,7 @@ import Analytics from "@/pages/Analytics";
 import Budget from "@/pages/Budget";
 import Profile from "@/pages/Profile";
 import UploadStatements from "@/pages/UploadStatements";
+import Subscriptions from "@/pages/Subscriptions";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/analytics" component={Analytics} />
       <Route path="/budget" component={Budget} />
       <Route path="/upload" component={UploadStatements} />
+      <Route path="/subscriptions" component={Subscriptions} />
       <Route path="/profile" component={Profile} />
       <Route component={NotFound} />
     </Switch>
