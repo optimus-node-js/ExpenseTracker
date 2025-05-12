@@ -1,4 +1,4 @@
-import { User, InsertUser, Transaction, InsertTransaction, Budget, InsertBudget, BankStatement, InsertBankStatement } from "@shared/schema";
+import { User, InsertUser, Transaction, InsertTransaction, Budget, InsertBudget, BankStatement, InsertBankStatement, Subscription, InsertSubscription } from "@shared/schema";
 
 export interface IStorage {
   // User methods
@@ -24,6 +24,13 @@ export interface IStorage {
   getBankStatement(id: number): Promise<BankStatement | undefined>;
   getAllBankStatements(userId: number): Promise<BankStatement[]>;
   createBankStatement(statement: InsertBankStatement): Promise<BankStatement>;
+  
+  // Subscription methods
+  getSubscription(id: number): Promise<Subscription | undefined>;
+  getAllSubscriptions(userId: number): Promise<Subscription[]>;
+  createSubscription(subscription: InsertSubscription): Promise<Subscription>;
+  updateSubscription(id: number, subscription: InsertSubscription): Promise<Subscription | undefined>;
+  deleteSubscription(id: number): Promise<boolean>;
   
   // Additional methods for transaction processing
   findDuplicateTransaction(transaction: InsertTransaction): Promise<Transaction | undefined>;

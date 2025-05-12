@@ -64,6 +64,25 @@ export const bankStatements = pgTable("bank_statements", {
   skippedDuplicates: integer("skipped_duplicates"),
 });
 
+// Subscriptions table
+export const subscriptions = pgTable("subscriptions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+  billingCycle: text("billing_cycle").notNull(), // 'weekly', 'monthly', 'quarterly', 'yearly'
+  startDate: timestamp("start_date").notNull(),
+  nextBillingDate: timestamp("next_billing_date").notNull(),
+  category: text("category").notNull(),
+  paymentMethod: text("payment_method").notNull(),
+  autoRenew: boolean("auto_renew").default(true),
+  active: boolean("active").default(true),
+  reminderDays: integer("reminder_days").default(3),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Schema validation for user insertion
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -88,6 +107,12 @@ export const insertBankStatementSchema = createInsertSchema(bankStatements).omit
   processedAt: true,
 });
 
+// Schema validation for subscription insertion
+export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Type definitions
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -100,3 +125,6 @@ export type InsertBudget = z.infer<typeof insertBudgetSchema>;
 
 export type BankStatement = typeof bankStatements.$inferSelect;
 export type InsertBankStatement = z.infer<typeof insertBankStatementSchema>;
+
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
