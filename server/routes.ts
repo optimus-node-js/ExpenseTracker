@@ -1,10 +1,15 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { isConnected } from "./db/mongodb";
+import { MongoDBStorage } from "./storage.mongodb";
+import { storage as memStorage } from "./storage";
 import multer from "multer";
 import { processStatementFile } from "./utils/transaction-parser";
 import { body, param, validationResult } from "express-validator";
 import { insertTransactionSchema, insertBudgetSchema } from "@shared/schema";
+
+// Create a MongoDB storage instance or use in-memory storage as fallback
+const storage = isConnected() ? new MongoDBStorage() : memStorage;
 
 // Configure multer for file uploads
 const upload = multer({

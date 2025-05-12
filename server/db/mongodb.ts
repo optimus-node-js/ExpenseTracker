@@ -1,17 +1,43 @@
 import mongoose from 'mongoose';
-import { log } from '../vite';
 
+// MongoDB connection string 
 const MONGODB_URI = 'mongodb+srv://SupremeRahul:***REDACTED***@clusternse.wpf8cel.mongodb.net/ExpenseTracker';
 
-const connectDB = async () => {
+// Configure Mongoose
+mongoose.set('strictQuery', false);
+
+// Connect to MongoDB
+export async function connectToMongoDB() {
   try {
     await mongoose.connect(MONGODB_URI);
-    log('Connected to MongoDB', 'mongodb');
-    return mongoose.connection;
+    console.log('Connected to MongoDB');
+    return true;
   } catch (error) {
-    log(`MongoDB connection error: ${error}`, 'mongodb');
-    process.exit(1);
+    console.error('MongoDB connection error:', error);
+    return false;
   }
-};
+}
 
-export default connectDB;
+// Disconnect from MongoDB (useful for testing or graceful shutdown)
+export async function disconnectFromMongoDB() {
+  try {
+    await mongoose.disconnect();
+    console.log('Disconnected from MongoDB');
+    return true;
+  } catch (error) {
+    console.error('MongoDB disconnection error:', error);
+    return false;
+  }
+}
+
+// Check connection status
+export function isConnected(): boolean {
+  return mongoose.connection.readyState === 1;
+}
+
+// Get connection instance
+export function getConnection() {
+  return mongoose.connection;
+}
+
+export default mongoose;
