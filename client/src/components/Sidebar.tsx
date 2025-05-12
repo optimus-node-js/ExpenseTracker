@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/Logo";
 import { UserAvatar } from "@/components/UserAvatar";
+import { useUser } from "@/hooks/use-user";
 import {
   LayoutDashboard,
   BarChart3,
@@ -23,6 +24,7 @@ const navItems = [
 
 export function Sidebar() {
   const [location] = useLocation();
+  const { data: user, isLoading } = useUser();
 
   return (
     <aside className="hidden md:flex flex-col w-64 bg-card border-r shadow-sm transition-all duration-200">
@@ -65,8 +67,12 @@ export function Sidebar() {
           <div className="flex items-center space-x-3 px-4 py-3 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors">
             <UserAvatar />
             <div>
-              <p className="text-sm font-medium text-foreground">Rahul Sharma</p>
-              <p className="text-xs text-muted-foreground">rahul@example.com</p>
+              <p className="text-sm font-medium text-foreground">
+                {user?.fullName || "Loading..."}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {user?.email || ""}
+              </p>
             </div>
           </div>
         </Link>

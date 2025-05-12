@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Logo } from "@/components/Logo";
 import { UserAvatar } from "@/components/UserAvatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useUser } from "@/hooks/use-user";
 import {
   LayoutDashboard,
   BarChart3,
@@ -26,6 +27,7 @@ const navItems = [
 export function MobileSidebar() {
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
+  const { data: user, isLoading } = useUser();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -84,8 +86,12 @@ export function MobileSidebar() {
             <div className="flex items-center space-x-3">
               <UserAvatar />
               <div>
-                <p className="text-sm font-medium text-foreground">Rahul Sharma</p>
-                <p className="text-xs text-muted-foreground">rahul@example.com</p>
+                <p className="text-sm font-medium text-foreground">
+                  {user?.fullName || "Loading..."}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {user?.email || ""}
+                </p>
               </div>
             </div>
             <ThemeToggle />
