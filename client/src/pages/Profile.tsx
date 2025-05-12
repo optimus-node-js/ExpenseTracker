@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
@@ -62,14 +62,14 @@ export default function Profile() {
   });
 
   // Update profile form with user data when it loads
-  useState(() => {
+  React.useEffect(() => {
     if (user) {
       profileForm.reset({
         fullName: user.fullName || "",
         email: user.email || "",
       });
     }
-  });
+  }, [user, profileForm]);
 
   // Profile update mutation
   const updateProfileMutation = useMutation({

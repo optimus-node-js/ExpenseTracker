@@ -9,6 +9,7 @@ import {
   Upload,
   DollarSign,
   CalendarClock,
+  User,
 } from "lucide-react";
 
 const navItems = [
@@ -60,13 +61,15 @@ export function Sidebar() {
       
       {/* User Profile */}
       <div className="p-4 mt-auto">
-        <div className="flex items-center space-x-3 px-4 py-3 bg-muted rounded-lg">
-          <UserAvatar />
-          <div>
-            <p className="text-sm font-medium text-foreground">Rahul Sharma</p>
-            <p className="text-xs text-muted-foreground">rahul@example.com</p>
+        <Link href="/profile">
+          <div className="flex items-center space-x-3 px-4 py-3 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors">
+            <UserAvatar />
+            <div>
+              <p className="text-sm font-medium text-foreground">Rahul Sharma</p>
+              <p className="text-xs text-muted-foreground">rahul@example.com</p>
+            </div>
           </div>
-        </div>
+        </Link>
       </div>
     </aside>
   );
