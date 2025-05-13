@@ -6,7 +6,15 @@ import { storage as memStorage } from "./storage";
 import multer from "multer";
 import { processStatementFile } from "./utils/transaction-parser";
 import { body, param, validationResult } from "express-validator";
-import { insertTransactionSchema, insertBudgetSchema, insertSubscriptionSchema } from "@shared/schema";
+import { 
+  insertTransactionSchema, 
+  insertBudgetSchema, 
+  insertSubscriptionSchema,
+  insertLoanSchema,
+  insertIncomeSourceSchema,
+  insertInvestmentSchema,
+  insertSipSchema
+} from "@shared/schema";
 
 // Create a MongoDB storage instance or use in-memory storage as fallback
 const storage = isConnected() ? new MongoDBStorage() : memStorage;
@@ -685,6 +693,355 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
+  // ===== Loans/Lending/Borrowing Endpoints =====
+  
+  // Get all loans
+  app.get("/api/loans", async (req, res) => {
+    try {
+      // Get the active user
+      const user = await storage.getUserByUsername("user");
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const loans = await storage.getAllLoans(user.id);
+      res.json(loans);
+    } catch (error) {
+      console.error("Error getting loans:", error);
+      res.status(500).json({ message: "Failed to retrieve loans" });
+    }
+  });
+
+  // Get single loan
+  app.get("/api/loans/:id", 
+    param("id").isNumeric(),
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      try {
+        const id = parseInt(req.params.id);
+        const loan = await storage.getLoan(id);
+        
+        if (!loan) {
+          return res.status(404).json({ message: "Loan not found" });
+        }
+        
+        res.json(loan);
+      } catch (error) {
+        console.error("Error getting loan:", error);
+        res.status(500).json({ message: "Failed to retrieve loan" });
+      }
+    }
+  );
+
+  // Create loan
+  app.post("/api/loans", 
+    body().custom(value => {
+      try {
+        insertLoanSchema.parse(value);
+        return true;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    }),
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      try {
+        // Get the active user
+        const user = await storage.getUserByUsername("user");
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        
+        // Prepare loan data
+        const loanData = {
+          ...req.body,
+          userId: user.id,
+          startDate: new Date(req.body.startDate),
+          dueDate: req.body.dueDate ? new Date(req.body.dueDate) : null,
+          createdAt: new Date()
+        };
+        
+        const newLoan = await storage.createLoan(loanData);
+        res.status(201).json(newLoan);
+      } catch (error) {
+        console.error("Error creating loan:", error);
+        res.status(500).json({ message: "Failed to create loan" });
+      }
+    }
+  );
+
+  // Update a loan
+  app.patch(
+    "/api/loans/:id",
+    [
+      param("id").isInt().withMessage("Loan ID must be an integer"),
+      body("amount").optional().isFloat({ min: 0 }).withMessage("Amount must be a positive number"),
+      body("personName").optional().notEmpty().withMessage("Person name cannot be empty"),
+      body("type").optional().isIn(["lent", "borrowed"]).withMessage("Type must be either 'lent' or 'borrowed'"),
+      body("status").optional().isIn(["pending", "partially_paid", "paid"]).withMessage("Status must be one of: pending, partially_paid, paid"),
+      body("startDate").optional().isISO8601().withMessage("Start date must be a valid date"),
+      body("dueDate").optional().isISO8601().withMessage("Due date must be a valid date"),
+      body("interestRate").optional().isFloat({ min: 0 }).withMessage("Interest rate must be a positive number"),
+      body("paidAmount").optional().isFloat({ min: 0 }).withMessage("Paid amount must be a positive number")
+    ],
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      try {
+        const id = parseInt(req.params.id);
+        const existingLoan = await storage.getLoan(id);
+        
+        if (!existingLoan) {
+          return res.status(404).json({ message: "Loan not found" });
+        }
+        
+        // Prepare update data with proper date conversion
+        const updateData = {
+          ...req.body
+        };
+        
+        // Convert date strings to Date objects if present
+        if (req.body.startDate) {
+          updateData.startDate = new Date(req.body.startDate);
+        }
+        
+        if (req.body.dueDate) {
+          updateData.dueDate = new Date(req.body.dueDate);
+        }
+        
+        const updatedLoan = await storage.updateLoan(id, updateData);
+        
+        if (!updatedLoan) {
+          return res.status(404).json({ message: "Failed to update loan" });
+        }
+        
+        res.json(updatedLoan);
+      } catch (error) {
+        console.error("Error updating loan:", error);
+        res.status(500).json({ message: "Failed to update loan" });
+      }
+    }
+  );
+
+  // Delete a loan
+  app.delete(
+    "/api/loans/:id",
+    [
+      param("id").isInt().withMessage("Loan ID must be an integer")
+    ],
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      try {
+        const id = parseInt(req.params.id);
+        const success = await storage.deleteLoan(id);
+        
+        if (!success) {
+          return res.status(404).json({ message: "Loan not found" });
+        }
+        
+        res.status(204).send();
+      } catch (error) {
+        console.error("Error deleting loan:", error);
+        res.status(500).json({ message: "Failed to delete loan" });
+      }
+    }
+  );
+
+  // ===== Income Sources Endpoints =====
+  
+  // Get all income sources
+  app.get("/api/income-sources", async (req, res) => {
+    try {
+      // Get the active user
+      const user = await storage.getUserByUsername("user");
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const incomeSources = await storage.getAllIncomeSources(user.id);
+      res.json(incomeSources);
+    } catch (error) {
+      console.error("Error getting income sources:", error);
+      res.status(500).json({ message: "Failed to retrieve income sources" });
+    }
+  });
+
+  // Create income source
+  app.post("/api/income-sources", 
+    body().custom(value => {
+      try {
+        insertIncomeSourceSchema.parse(value);
+        return true;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    }),
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      try {
+        // Get the active user
+        const user = await storage.getUserByUsername("user");
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        
+        // Prepare income source data
+        const incomeSourceData = {
+          ...req.body,
+          userId: user.id,
+          startDate: new Date(req.body.startDate),
+          endDate: req.body.endDate ? new Date(req.body.endDate) : null,
+          createdAt: new Date()
+        };
+        
+        const newIncomeSource = await storage.createIncomeSource(incomeSourceData);
+        res.status(201).json(newIncomeSource);
+      } catch (error) {
+        console.error("Error creating income source:", error);
+        res.status(500).json({ message: "Failed to create income source" });
+      }
+    }
+  );
+  
+  // ===== Investments Endpoints =====
+  
+  // Get all investments
+  app.get("/api/investments", async (req, res) => {
+    try {
+      // Get the active user
+      const user = await storage.getUserByUsername("user");
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const investments = await storage.getAllInvestments(user.id);
+      res.json(investments);
+    } catch (error) {
+      console.error("Error getting investments:", error);
+      res.status(500).json({ message: "Failed to retrieve investments" });
+    }
+  });
+
+  // Create investment
+  app.post("/api/investments", 
+    body().custom(value => {
+      try {
+        insertInvestmentSchema.parse(value);
+        return true;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    }),
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      try {
+        // Get the active user
+        const user = await storage.getUserByUsername("user");
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        
+        // Prepare investment data
+        const investmentData = {
+          ...req.body,
+          userId: user.id,
+          purchaseDate: new Date(req.body.purchaseDate),
+          maturityDate: req.body.maturityDate ? new Date(req.body.maturityDate) : null,
+          createdAt: new Date()
+        };
+        
+        const newInvestment = await storage.createInvestment(investmentData);
+        res.status(201).json(newInvestment);
+      } catch (error) {
+        console.error("Error creating investment:", error);
+        res.status(500).json({ message: "Failed to create investment" });
+      }
+    }
+  );
+  
+  // ===== SIP Endpoints =====
+  
+  // Get all SIPs
+  app.get("/api/sips", async (req, res) => {
+    try {
+      // Get the active user
+      const user = await storage.getUserByUsername("user");
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const sips = await storage.getAllSips(user.id);
+      res.json(sips);
+    } catch (error) {
+      console.error("Error getting SIPs:", error);
+      res.status(500).json({ message: "Failed to retrieve SIPs" });
+    }
+  });
+
+  // Create SIP
+  app.post("/api/sips", 
+    body().custom(value => {
+      try {
+        insertSipSchema.parse(value);
+        return true;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    }),
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      try {
+        // Get the active user
+        const user = await storage.getUserByUsername("user");
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        
+        // Prepare SIP data
+        const sipData = {
+          ...req.body,
+          userId: user.id,
+          startDate: new Date(req.body.startDate),
+          endDate: req.body.endDate ? new Date(req.body.endDate) : null,
+          createdAt: new Date()
+        };
+        
+        const newSip = await storage.createSip(sipData);
+        res.status(201).json(newSip);
+      } catch (error) {
+        console.error("Error creating SIP:", error);
+        res.status(500).json({ message: "Failed to create SIP" });
+      }
+    }
+  );
+
   // ===== User Profile Endpoints =====
   
   // Get user profile
@@ -720,7 +1077,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     "/api/user/profile",
     [
       body("fullName").optional().notEmpty().withMessage("Full name cannot be empty"),
-      body("email").optional().isEmail().withMessage("Email must be valid")
+      body("email").optional().isEmail().withMessage("Email must be valid"),
+      body("cashReserve").optional().isNumeric().withMessage("Cash reserve must be a number")
     ],
     async (req, res) => {
       const errors = validationResult(req);
@@ -736,12 +1094,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ message: "User not found" });
         }
         
-        // For now, since we don't have a full updateUser method, we'll just return the user
-        // with the updated fields (in a real app we would update the database)
-        const updatedUser = {
-          ...user,
-          ...req.body
-        };
+        // Update the user profile with the new data
+        const updatedUser = await storage.updateUser(user.id, req.body);
+        
+        if (!updatedUser) {
+          return res.status(500).json({ message: "Failed to update user profile" });
+        }
         
         // Don't send password in the response
         const { password, ...userProfile } = updatedUser;
@@ -750,6 +1108,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         console.error("Error updating user profile:", error);
         res.status(500).json({ message: "Failed to update user profile" });
+      }
+    }
+  );
+  
+  // Update cash reserve
+  app.patch(
+    "/api/user/cash-reserve",
+    [
+      body("amount").isNumeric().withMessage("Amount must be a number")
+    ],
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      try {
+        // Get the user by username since we're not using sessions yet
+        const user = await storage.getUserByUsername("user");
+        
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        
+        // Update the cash reserve
+        const amount = Number(req.body.amount);
+        const updatedUser = await storage.updateCashReserve(user.id, amount);
+        
+        if (!updatedUser) {
+          return res.status(500).json({ message: "Failed to update cash reserve" });
+        }
+        
+        // Don't send password in the response
+        const { password, ...userProfile } = updatedUser;
+        
+        res.json(userProfile);
+      } catch (error) {
+        console.error("Error updating cash reserve:", error);
+        res.status(500).json({ message: "Failed to update cash reserve" });
       }
     }
   );

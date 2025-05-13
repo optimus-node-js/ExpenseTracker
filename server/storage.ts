@@ -82,6 +82,10 @@ export class MemStorage implements IStorage {
   private budgets: Map<number, Budget>;
   private bankStatements: Map<number, BankStatement>;
   private subscriptions: Map<number, Subscription>;
+  private loans: Map<number, Loan>;
+  private incomeSources: Map<number, IncomeSource>;
+  private investments: Map<number, Investment>;
+  private sips: Map<number, Sip>;
   
   private userId: number = 1;
   private transactionId: number = 1;
