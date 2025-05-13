@@ -92,6 +92,10 @@ export class MemStorage implements IStorage {
   private budgetId: number = 1;
   private bankStatementId: number = 1;
   private subscriptionId: number = 1;
+  private loanId: number = 1;
+  private incomeSourceId: number = 1;
+  private investmentId: number = 1;
+  private sipId: number = 1;
 
   constructor() {
     this.users = new Map();
@@ -99,6 +103,10 @@ export class MemStorage implements IStorage {
     this.budgets = new Map();
     this.bankStatements = new Map();
     this.subscriptions = new Map();
+    this.loans = new Map();
+    this.incomeSources = new Map();
+    this.investments = new Map();
+    this.sips = new Map();
     
     // Initialize with a default user
     this.users.set(1, {
@@ -107,6 +115,7 @@ export class MemStorage implements IStorage {
       password: "password", // In a real app, this would be hashed
       email: "rahul@example.com",
       fullName: "Rahul Sharma",
+      cashReserve: "0", // Starting with zero cash reserve
       createdAt: new Date(),
     });
   }
@@ -127,6 +136,40 @@ export class MemStorage implements IStorage {
     const user: User = { ...insertUser, id, createdAt: new Date() };
     this.users.set(id, user);
     return user;
+  }
+  
+  async updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined> {
+    const existingUser = await this.getUser(id);
+    if (!existingUser) {
+      return undefined;
+    }
+    
+    const updatedUser: User = { 
+      ...existingUser, 
+      ...userData,
+      id, // Keep the original ID
+      createdAt: existingUser.createdAt // Keep the original creation date
+    };
+    
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+  
+  async updateCashReserve(id: number, amount: number): Promise<User | undefined> {
+    const existingUser = await this.getUser(id);
+    if (!existingUser) {
+      return undefined;
+    }
+    
+    const updatedUser: User = { 
+      ...existingUser,
+      cashReserve: amount.toString(),
+      id, // Keep the original ID
+      createdAt: existingUser.createdAt // Keep the original creation date
+    };
+    
+    this.users.set(id, updatedUser);
+    return updatedUser;
   }
   
   // Transaction methods
