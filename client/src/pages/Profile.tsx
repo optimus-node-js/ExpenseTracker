@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import CashReserveForm from "@/components/CashReserveForm";
 
 // Form schemas
 const profileSchema = z.object({
@@ -321,18 +322,43 @@ export default function Profile() {
               <CardHeader>
                 <CardTitle>Preferences</CardTitle>
                 <CardDescription>
-                  Customize your app experience and notification settings
+                  Customize your financial settings and application preferences
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Cash Reserve Management</h3>
+                    <div className="bg-background border rounded-lg p-4">
+                      {isLoading ? (
+                        <div className="flex items-center justify-center p-4">
+                          <span className="animate-spin mr-2">⏳</span> Loading...
+                        </div>
+                      ) : (
+                        <>
+                          <div className="mb-4">
+                            <span className="text-sm text-muted-foreground">Current Cash Reserve:</span>
+                            <h4 className="text-2xl font-bold text-primary">
+                              ₹{parseFloat(user?.cashReserve || "0").toLocaleString('en-IN')}
+                            </h4>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              This is the amount of cash you have on hand, not in bank accounts.
+                            </p>
+                          </div>
+                          {/* Import CashReserveForm once we create it */}
+                          {user && <CashReserveForm user={user} />}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <Separator />
                   <div className="space-y-4">
                     <h3 className="text-lg font-medium">App Settings</h3>
                     <Alert>
                       <AlertCircle className="h-4 w-4" />
                       <AlertTitle>Preference settings</AlertTitle>
                       <AlertDescription>
-                        Preferences will be available in a future update.
+                        Additional preference settings will be available in a future update.
                       </AlertDescription>
                     </Alert>
                   </div>

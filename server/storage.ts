@@ -322,6 +322,174 @@ export class MemStorage implements IStorage {
     return this.subscriptions.delete(id);
   }
   
+  // Loan methods
+  async getLoan(id: number): Promise<Loan | undefined> {
+    return this.loans.get(id);
+  }
+  
+  async getAllLoans(userId: number): Promise<Loan[]> {
+    return Array.from(this.loans.values())
+      .filter(loan => loan.userId === userId);
+  }
+  
+  async createLoan(loan: InsertLoan): Promise<Loan> {
+    const id = this.loanId++;
+    const newLoan: Loan = { 
+      ...loan, 
+      id, 
+      createdAt: new Date() 
+    };
+    this.loans.set(id, newLoan);
+    return newLoan;
+  }
+  
+  async updateLoan(id: number, loanData: Partial<InsertLoan>): Promise<Loan | undefined> {
+    const existingLoan = await this.getLoan(id);
+    if (!existingLoan) {
+      return undefined;
+    }
+    
+    const updatedLoan: Loan = { 
+      ...existingLoan, 
+      ...loanData,
+      id, // Keep the original ID
+      createdAt: existingLoan.createdAt // Keep the original creation date
+    };
+    
+    this.loans.set(id, updatedLoan);
+    return updatedLoan;
+  }
+  
+  async deleteLoan(id: number): Promise<boolean> {
+    return this.loans.delete(id);
+  }
+  
+  // Income Sources methods
+  async getIncomeSource(id: number): Promise<IncomeSource | undefined> {
+    return this.incomeSources.get(id);
+  }
+  
+  async getAllIncomeSources(userId: number): Promise<IncomeSource[]> {
+    return Array.from(this.incomeSources.values())
+      .filter(source => source.userId === userId);
+  }
+  
+  async createIncomeSource(incomeSource: InsertIncomeSource): Promise<IncomeSource> {
+    const id = this.incomeSourceId++;
+    const newIncomeSource: IncomeSource = { 
+      ...incomeSource, 
+      id, 
+      createdAt: new Date() 
+    };
+    this.incomeSources.set(id, newIncomeSource);
+    return newIncomeSource;
+  }
+  
+  async updateIncomeSource(id: number, incomeSourceData: Partial<InsertIncomeSource>): Promise<IncomeSource | undefined> {
+    const existingSource = await this.getIncomeSource(id);
+    if (!existingSource) {
+      return undefined;
+    }
+    
+    const updatedSource: IncomeSource = { 
+      ...existingSource, 
+      ...incomeSourceData,
+      id, // Keep the original ID
+      createdAt: existingSource.createdAt // Keep the original creation date
+    };
+    
+    this.incomeSources.set(id, updatedSource);
+    return updatedSource;
+  }
+  
+  async deleteIncomeSource(id: number): Promise<boolean> {
+    return this.incomeSources.delete(id);
+  }
+  
+  // Investment methods
+  async getInvestment(id: number): Promise<Investment | undefined> {
+    return this.investments.get(id);
+  }
+  
+  async getAllInvestments(userId: number): Promise<Investment[]> {
+    return Array.from(this.investments.values())
+      .filter(investment => investment.userId === userId);
+  }
+  
+  async createInvestment(investment: InsertInvestment): Promise<Investment> {
+    const id = this.investmentId++;
+    const newInvestment: Investment = { 
+      ...investment, 
+      id, 
+      createdAt: new Date() 
+    };
+    this.investments.set(id, newInvestment);
+    return newInvestment;
+  }
+  
+  async updateInvestment(id: number, investmentData: Partial<InsertInvestment>): Promise<Investment | undefined> {
+    const existingInvestment = await this.getInvestment(id);
+    if (!existingInvestment) {
+      return undefined;
+    }
+    
+    const updatedInvestment: Investment = { 
+      ...existingInvestment, 
+      ...investmentData,
+      id, // Keep the original ID
+      createdAt: existingInvestment.createdAt // Keep the original creation date
+    };
+    
+    this.investments.set(id, updatedInvestment);
+    return updatedInvestment;
+  }
+  
+  async deleteInvestment(id: number): Promise<boolean> {
+    return this.investments.delete(id);
+  }
+  
+  // SIP methods
+  async getSip(id: number): Promise<Sip | undefined> {
+    return this.sips.get(id);
+  }
+  
+  async getAllSips(userId: number): Promise<Sip[]> {
+    return Array.from(this.sips.values())
+      .filter(sip => sip.userId === userId);
+  }
+  
+  async createSip(sip: InsertSip): Promise<Sip> {
+    const id = this.sipId++;
+    const newSip: Sip = { 
+      ...sip, 
+      id, 
+      createdAt: new Date() 
+    };
+    this.sips.set(id, newSip);
+    return newSip;
+  }
+  
+  async updateSip(id: number, sipData: Partial<InsertSip>): Promise<Sip | undefined> {
+    const existingSip = await this.getSip(id);
+    if (!existingSip) {
+      return undefined;
+    }
+    
+    const updatedSip: Sip = { 
+      ...existingSip, 
+      ...sipData,
+      id, // Keep the original ID
+      createdAt: existingSip.createdAt // Keep the original creation date
+    };
+    
+    this.sips.set(id, updatedSip);
+    return updatedSip;
+  }
+  
+  async deleteSip(id: number): Promise<boolean> {
+    return this.sips.delete(id);
+  }
+  
   // Check for duplicate transactions based on date, amount, and description
   async findDuplicateTransaction(transaction: InsertTransaction): Promise<Transaction | undefined> {
     const transactionDate = new Date(transaction.date);
