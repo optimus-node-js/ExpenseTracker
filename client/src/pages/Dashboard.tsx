@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { ExpensePieChart } from "@/components/dashboard/ExpensePieChart";
 import { MonthlyTrendChart } from "@/components/dashboard/MonthlyTrendChart";
@@ -21,7 +22,9 @@ import {
   Building,
   CreditCard,
   TrendingUp,
-  BadgeDollarSign
+  BadgeDollarSign,
+  Coins,
+  HandCoins
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { TransactionForm } from "@/components/TransactionForm";
@@ -432,6 +435,76 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
+      </div>
+      
+      {/* Financial Management Summary */}
+      <div className="mb-6">
+        <h2 className="text-xl font-bold font-heading mb-4">Financial Management</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="bg-background border border-border/40 shadow-sm hover:shadow transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="rounded-full p-2 bg-blue-100 dark:bg-blue-900">
+                  <BadgeDollarSign className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                </div>
+                <h3 className="text-lg font-bold ml-3">Cash Reserve</h3>
+              </div>
+              <div className="text-2xl font-bold">₹{parseFloat(dashboardData?.user?.cashReserve || "0").toLocaleString('en-IN')}</div>
+              <p className="text-muted-foreground text-sm mt-1">Available on hand</p>
+              <Button variant="outline" size="sm" className="w-full mt-4" asChild>
+                <Link to="/profile?tab=preferences">Manage Cash</Link>
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-background border border-border/40 shadow-sm hover:shadow transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="rounded-full p-2 bg-purple-100 dark:bg-purple-900">
+                  <Coins className="h-5 w-5 text-purple-600 dark:text-purple-300" />
+                </div>
+                <h3 className="text-lg font-bold ml-3">Investments & SIPs</h3>
+              </div>
+              <div className="flex justify-between">
+                <div>
+                  <div className="text-sm text-muted-foreground">Portfolio</div>
+                  <div className="font-semibold">View Summary</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">Monthly SIPs</div>
+                  <div className="font-semibold">Track Progress</div>
+                </div>
+              </div>
+              <Button variant="outline" size="sm" className="w-full mt-4" asChild>
+                <Link to="/investments">Manage Portfolio</Link>
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-background border border-border/40 shadow-sm hover:shadow transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center mb-4">
+                <div className="rounded-full p-2 bg-green-100 dark:bg-green-900">
+                  <HandCoins className="h-5 w-5 text-green-600 dark:text-green-300" />
+                </div>
+                <h3 className="text-lg font-bold ml-3">Loans & Lending</h3>
+              </div>
+              <div className="flex justify-between">
+                <div>
+                  <div className="text-sm text-muted-foreground">Personal Loans</div>
+                  <div className="font-semibold">Track Records</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground">Manage</div>
+                  <div className="font-semibold">View Details</div>
+                </div>
+              </div>
+              <Button variant="outline" size="sm" className="w-full mt-4" asChild>
+                <Link to="/loans">Manage Loans</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
       
       {/* Recent Transactions Section */}
