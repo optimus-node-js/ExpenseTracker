@@ -5,6 +5,10 @@ import {
   budgets, 
   bankStatements, 
   subscriptions,
+  loans,
+  incomeSources,
+  investments,
+  sips,
   type User, 
   type InsertUser, 
   type Transaction, 
@@ -14,7 +18,15 @@ import {
   type BankStatement, 
   type InsertBankStatement, 
   type Subscription, 
-  type InsertSubscription 
+  type InsertSubscription,
+  type Loan,
+  type InsertLoan,
+  type IncomeSource,
+  type InsertIncomeSource,
+  type Investment,
+  type InsertInvestment,
+  type Sip,
+  type InsertSip
 } from "@shared/schema";
 import { db } from "./db";
 import { IStorage } from "./storage";
