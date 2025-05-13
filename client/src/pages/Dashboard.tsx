@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
+import { apiRequest } from "@/lib/queryClient";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { ExpensePieChart } from "@/components/dashboard/ExpensePieChart";
 import { MonthlyTrendChart } from "@/components/dashboard/MonthlyTrendChart";
@@ -67,6 +68,15 @@ const mockLiabilityData = [
 ];
 
 export default function Dashboard() {
+  // Fetch user profile data
+  const { data: userData, isLoading: userLoading } = useQuery({
+    queryKey: ['/api/user/profile'],
+    queryFn: async () => {
+      const data = await apiRequest('/api/user/profile', { method: 'GET' });
+      return data;
+    }
+  });
+
   // Fetch dashboard data
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ["/api/dashboard"],
