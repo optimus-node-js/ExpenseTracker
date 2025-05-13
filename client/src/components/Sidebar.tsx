@@ -11,11 +11,20 @@ import {
   DollarSign,
   CalendarClock,
   User,
+  TrendingUp,
+  CircleDollarSign,
+  HandCoins,
+  Coins,
+  Wallet,
+  Landmark,
 } from "lucide-react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/" },
   { icon: DollarSign, label: "Transactions", href: "/transactions" },
+  { icon: Wallet, label: "Income", href: "/income" },
+  { icon: HandCoins, label: "Loans & Lending", href: "/loans" },
+  { icon: Coins, label: "Investments", href: "/investments" },
   { icon: BarChart3, label: "Analytics", href: "/analytics" },
   { icon: CreditCard, label: "Budgets", href: "/budget" },
   { icon: CalendarClock, label: "Subscriptions", href: "/subscriptions" },

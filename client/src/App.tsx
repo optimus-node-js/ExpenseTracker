@@ -11,6 +11,9 @@ import Budget from "@/pages/Budget";
 import Profile from "@/pages/Profile";
 import UploadStatements from "@/pages/UploadStatements";
 import Subscriptions from "@/pages/Subscriptions";
+import Investments from "@/pages/Investments";
+import Income from "@/pages/Income";
+import Loans from "@/pages/Loans";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -22,6 +25,9 @@ function Router() {
       <Route path="/budget" component={Budget} />
       <Route path="/upload" component={UploadStatements} />
       <Route path="/subscriptions" component={Subscriptions} />
+      <Route path="/investments" component={Investments} />
+      <Route path="/income" component={Income} />
+      <Route path="/loans" component={Loans} />
       <Route path="/profile" component={Profile} />
       <Route component={NotFound} />
     </Switch>
