@@ -52,6 +52,24 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
   
+  async updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined> {
+    const [updatedUser] = await db
+      .update(users)
+      .set(userData)
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser || undefined;
+  }
+  
+  async updateCashReserve(id: number, amount: number): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ cashReserve: amount.toString() })
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
+  }
+  
   // Transaction methods
   async getTransaction(id: number): Promise<Transaction | undefined> {
     const [transaction] = await db.select().from(transactions).where(eq(transactions.id, id));
@@ -196,5 +214,145 @@ export class DatabaseStorage implements IStorage {
       );
     
     return duplicate || undefined;
+  }
+  
+  // Loan methods (for lending/borrowing)
+  async getLoan(id: number): Promise<Loan | undefined> {
+    const [loan] = await db.select().from(loans).where(eq(loans.id, id));
+    return loan || undefined;
+  }
+  
+  async getAllLoans(userId: number): Promise<Loan[]> {
+    return db.select().from(loans).where(eq(loans.userId, userId));
+  }
+  
+  async createLoan(loan: InsertLoan): Promise<Loan> {
+    const [newLoan] = await db
+      .insert(loans)
+      .values(loan)
+      .returning();
+    return newLoan;
+  }
+  
+  async updateLoan(id: number, loan: Partial<InsertLoan>): Promise<Loan | undefined> {
+    const [updatedLoan] = await db
+      .update(loans)
+      .set(loan)
+      .where(eq(loans.id, id))
+      .returning();
+    return updatedLoan || undefined;
+  }
+  
+  async deleteLoan(id: number): Promise<boolean> {
+    const result = await db
+      .delete(loans)
+      .where(eq(loans.id, id))
+      .returning();
+    return result.length > 0;
+  }
+  
+  // Income Sources methods
+  async getIncomeSource(id: number): Promise<IncomeSource | undefined> {
+    const [incomeSource] = await db.select().from(incomeSources).where(eq(incomeSources.id, id));
+    return incomeSource || undefined;
+  }
+  
+  async getAllIncomeSources(userId: number): Promise<IncomeSource[]> {
+    return db.select().from(incomeSources).where(eq(incomeSources.userId, userId));
+  }
+  
+  async createIncomeSource(incomeSource: InsertIncomeSource): Promise<IncomeSource> {
+    const [newIncomeSource] = await db
+      .insert(incomeSources)
+      .values(incomeSource)
+      .returning();
+    return newIncomeSource;
+  }
+  
+  async updateIncomeSource(id: number, incomeSource: Partial<InsertIncomeSource>): Promise<IncomeSource | undefined> {
+    const [updatedIncomeSource] = await db
+      .update(incomeSources)
+      .set(incomeSource)
+      .where(eq(incomeSources.id, id))
+      .returning();
+    return updatedIncomeSource || undefined;
+  }
+  
+  async deleteIncomeSource(id: number): Promise<boolean> {
+    const result = await db
+      .delete(incomeSources)
+      .where(eq(incomeSources.id, id))
+      .returning();
+    return result.length > 0;
+  }
+  
+  // Investment methods
+  async getInvestment(id: number): Promise<Investment | undefined> {
+    const [investment] = await db.select().from(investments).where(eq(investments.id, id));
+    return investment || undefined;
+  }
+  
+  async getAllInvestments(userId: number): Promise<Investment[]> {
+    return db.select().from(investments).where(eq(investments.userId, userId));
+  }
+  
+  async createInvestment(investment: InsertInvestment): Promise<Investment> {
+    const [newInvestment] = await db
+      .insert(investments)
+      .values(investment)
+      .returning();
+    return newInvestment;
+  }
+  
+  async updateInvestment(id: number, investment: Partial<InsertInvestment>): Promise<Investment | undefined> {
+    const [updatedInvestment] = await db
+      .update(investments)
+      .set(investment)
+      .where(eq(investments.id, id))
+      .returning();
+    return updatedInvestment || undefined;
+  }
+  
+  async deleteInvestment(id: number): Promise<boolean> {
+    const result = await db
+      .delete(investments)
+      .where(eq(investments.id, id))
+      .returning();
+    return result.length > 0;
+  }
+  
+  // SIP methods
+  async getSip(id: number): Promise<Sip | undefined> {
+    const [sip] = await db.select().from(sips).where(eq(sips.id, id));
+    return sip || undefined;
+  }
+  
+  async getAllSips(userId: number): Promise<Sip[]> {
+    return db.select().from(sips).where(eq(sips.userId, userId));
+  }
+  
+  async createSip(sip: InsertSip): Promise<Sip> {
+    const [newSip] = await db
+      .insert(sips)
+      .values(sip)
+      .returning();
+    return newSip;
+  }
+  
+  async updateSip(id: number, sip: Partial<InsertSip>): Promise<Sip | undefined> {
+    const [updatedSip] = await db
+      .update(sips)
+      .set(sip)
+      .where(eq(sips.id, id))
+      .returning();
+    return updatedSip || undefined;
+  }
+  
+  async deleteSip(id: number): Promise<boolean> {
+    const result = await db
+      .delete(sips)
+      .where(eq(sips.id, id))
+      .returning();
+    return result.length > 0;
   }
 }

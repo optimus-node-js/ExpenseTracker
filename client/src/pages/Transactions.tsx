@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Transaction } from "@shared/schema";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,16 +79,14 @@ export default function Transactions() {
   const queryClient = useQueryClient();
   
   // Fetch transactions
-  const { data: transactions = [], isLoading } = useQuery({
+  const { data: transactions = [], isLoading } = useQuery<Transaction[]>({
     queryKey: ['/api/transactions'],
     enabled: true,
   });
 
   // Delete transaction mutation
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/transactions/${id}`, {
-      method: 'DELETE'
-    }),
+    mutationFn: (id: number) => apiRequest('DELETE', `/api/transactions/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
       queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
@@ -389,32 +388,36 @@ export default function Transactions() {
               <div className="divide-y">
                 {filteredTransactions.map((transaction: any) => (
                   <div key={transaction.id} className="py-4">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-start gap-3">
+                    <div className="flex flex-row items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
                         <div 
-                          className="w-10 h-10 rounded-full flex items-center justify-center mt-1" 
+                          className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center" 
                           style={{ backgroundColor: getCategoryColor(transaction.category) }}
                         >
                           <span className="text-white">{getCategoryIcon(transaction.category)}</span>
                         </div>
                         
-                        <div>
-                          <div className="font-medium">{transaction.description}</div>
-                          <div className="text-sm text-muted-foreground flex items-center mt-1">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            {formatDate(transaction.date)}
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium truncate">{transaction.description}</div>
+                          <div className="text-sm text-muted-foreground flex items-center mt-1 flex-wrap">
+                            <div className="flex items-center">
+                              <Calendar className="h-3 w-3 mr-1" />
+                              {formatDate(transaction.date)}
+                            </div>
                             <Separator orientation="vertical" className="mx-2 h-3" />
-                            <span>{getPaymentModeIcon(transaction.paymentMode)}</span>
-                            <span className="ml-1">{transaction.paymentMode}</span>
+                            <div className="flex items-center">
+                              <span>{getPaymentModeIcon(transaction.paymentMode)}</span>
+                              <span className="ml-1">{transaction.paymentMode}</span>
+                            </div>
                           </div>
-                          <div className="flex mt-2">
+                          <div className="flex mt-2 flex-wrap gap-2">
                             <Badge variant="outline" className="text-xs">
                               {transaction.category}
                             </Badge>
                             {transaction.notes && (
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <Badge variant="secondary" className="ml-2 text-xs">
+                                  <Badge variant="secondary" className="text-xs">
                                     Note
                                   </Badge>
                                 </TooltipTrigger>
@@ -427,23 +430,22 @@ export default function Transactions() {
                         </div>
                       </div>
                       
-                      <div className="flex items-center justify-between md:justify-end gap-4 mt-2 md:mt-0">
-                        <div className={`text-xl font-semibold ${
+                      <div className="flex items-center justify-end gap-3 flex-shrink-0">
+                        <div className={`text-lg font-semibold whitespace-nowrap ${
                           transaction.type === 'income' ? 'text-green-500' : 'text-red-500'
                         }`}>
                           {transaction.type === 'income' ? '+ ' : '- '}
                           {formatCurrency(Number(transaction.amount))}
                         </div>
                         
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => handleDeleteTransaction(transaction.id)}
-                          >
-                            <Trash2 className="h-4 w-4 text-muted-foreground" />
-                          </Button>
-                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleDeleteTransaction(transaction.id)}
+                          className="flex-shrink-0"
+                        >
+                          <Trash2 className="h-4 w-4 text-muted-foreground" />
+                        </Button>
                       </div>
                     </div>
                   </div>
