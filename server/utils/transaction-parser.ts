@@ -2,6 +2,7 @@ import { IStorage } from '../storage';
 import { parsePdfStatement } from './pdf-parser';
 import { parseExcelStatement } from './excel-parser';
 import { InsertBankStatement, InsertTransaction } from '@shared/schema';
+import { uploadToCloudinary } from './cloudinary';
 
 // Process bank statement file and extract transactions
 export async function processStatementFile(
