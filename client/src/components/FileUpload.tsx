@@ -6,9 +6,7 @@ import { Upload, FileUp, FileSpreadsheet, FileDigit, AlertTriangle } from "lucid
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import {
@@ -23,7 +21,6 @@ import {
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -95,87 +92,131 @@ export function FileUpload() {
         return;
       }
       
-      // Create form data for file upload
+      // Start with initial progress
+      setProgress(10);
+      
+      // Set up XHR for real-time progress tracking
+      const xhr = new XMLHttpRequest();
+      
+      // Create FormData with file and password
       const formData = new FormData();
       formData.append('file', file);
       if (data.password) {
         formData.append('password', data.password);
       }
       
-      // Simulate progress
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 95) {
-            clearInterval(interval);
-            return 95;
-          }
-          return prev + 5;
+      // Create a promise to handle the upload
+      try {
+        const result = await new Promise<any>((resolve, reject) => {
+          xhr.open('POST', '/api/upload-statement', true);
+          
+          // Track upload progress
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const percentComplete = Math.round((event.loaded / event.total) * 90) + 10;
+              setProgress(percentComplete <= 100 ? percentComplete : 100);
+            }
+          };
+          
+          // Handle upload completion
+          xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const response = JSON.parse(xhr.responseText);
+                resolve(response);
+              } catch (error) {
+                reject(new Error('Invalid response format'));
+              }
+            } else {
+              try {
+                const errorData = JSON.parse(xhr.responseText);
+                
+                // Handle password protected files
+                if (xhr.status === 401 && errorData.message === 'Password required') {
+                  setNeedsPassword(true);
+                  reject(new Error('Password required'));
+                } else {
+                  reject(new Error(errorData.message || 'Upload failed'));
+                }
+              } catch (e) {
+                reject(new Error(`Upload failed with status ${xhr.status}`));
+              }
+            }
+          };
+          
+          xhr.onerror = function() {
+            reject(new Error('Network error occurred during upload'));
+          };
+          
+          xhr.send(formData);
         });
-      }, 100);
-      
-      // Upload file
-      const response = await fetch('/api/upload-statement', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
-      
-      clearInterval(interval);
-      setProgress(100);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
         
-        // Check if file is password protected
-        if (response.status === 401 && errorData.message === 'Password required') {
-          setNeedsPassword(true);
+        // Set progress to 100% when complete
+        setProgress(100);
+        
+        // Set upload summary
+        setUploadSummary({
+          success: true,
+          total: result.total || 0,
+          added: result.added || 0,
+          duplicates: result.duplicates || 0,
+        });
+        
+        // Show success toast
+        toast({
+          title: "Upload Successful",
+          description: `Added ${result.added} new transactions from your statement.`,
+        });
+        
+        // Reset form
+        form.reset();
+        setNeedsPassword(false);
+        
+        // Invalidate queries to refresh data
+        queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
+        
+      } catch (error) {
+        console.error('Upload error:', error);
+        
+        // Don't show error toast for password protected files
+        if (error instanceof Error && error.message === 'Password required') {
           toast({
             title: "Password Required",
             description: "This file is password protected. Please enter the password.",
           });
-          setIsUploading(false);
-          return;
+        } else {
+          toast({
+            title: "Upload Failed",
+            description: error instanceof Error ? error.message : "Failed to upload and parse the statement",
+            variant: "destructive",
+          });
+          
+          setUploadSummary({
+            success: false,
+            total: 0,
+            added: 0,
+            duplicates: 0,
+          });
         }
-        
-        throw new Error(errorData.message || 'Failed to upload file');
       }
-      
-      const result = await response.json();
-      
-      // Set upload summary
-      setUploadSummary({
-        success: true,
-        total: result.total,
-        added: result.added,
-        duplicates: result.duplicates,
-      });
-      
-      // Reset form
-      form.reset();
-      setNeedsPassword(false);
-      
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });
-      
     } catch (error) {
-      console.error('Upload error:', error);
-      
+      console.error('File processing error:', error);
       toast({
-        title: "Upload Failed",
-        description: error instanceof Error ? error.message : "Failed to upload and parse the statement",
+        title: "Error",
+        description: "Failed to process file",
         variant: "destructive",
       });
-      
-      setUploadSummary({
-        success: false,
-        total: 0,
-        added: 0,
-        duplicates: 0,
-      });
     } finally {
-      setIsUploading(false);
-      setTimeout(() => setProgress(0), 2000);
+      // If we still need password, don't reset the uploading state
+      if (!needsPassword) {
+        setIsUploading(false);
+      }
+      setTimeout(() => {
+        if (progress === 100) {
+          setProgress(0);
+        }
+      }, 2000);
     }
   };
 
@@ -211,7 +252,11 @@ export function FileUpload() {
                               type="button"
                               variant="destructive"
                               size="sm"
-                              onClick={() => form.setValue("file", undefined)}
+                              onClick={() => {
+                                form.setValue("file", undefined as any);
+                                setNeedsPassword(false);
+                                form.setValue("password", "");
+                              }}
                               className="mt-2"
                             >
                               Remove File
@@ -228,7 +273,7 @@ export function FileUpload() {
                               accept=".pdf,.xlsx,.xls"
                               className="hidden"
                               onChange={(e) => {
-                                if (e.target.files) {
+                                if (e.target.files && e.target.files.length > 0) {
                                   onChange(e.target.files);
                                   // Reset password if file changes
                                   form.setValue("password", "");
@@ -283,7 +328,7 @@ export function FileUpload() {
             {isUploading && (
               <div className="space-y-2">
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>Uploading...</span>
+                  <span>Uploading to Cloudinary...</span>
                   <span>{progress}%</span>
                 </div>
                 <Progress value={progress} className="h-2" />

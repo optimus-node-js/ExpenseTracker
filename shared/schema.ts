@@ -56,6 +56,8 @@ export const bankStatements = pgTable("bank_statements", {
   userId: integer("user_id").references(() => users.id).notNull(),
   filename: text("filename").notNull(),
   fileType: text("file_type").notNull(), // 'pdf' or 'excel'
+  fileUrl: text("file_url"), // Cloudinary URL for the file
+  publicId: text("public_id"), // Cloudinary public ID for reference
   bankName: text("bank_name"),
   accountNumber: text("account_number"),
   statementPeriod: text("statement_period"),

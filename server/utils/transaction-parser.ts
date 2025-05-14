@@ -6,7 +6,7 @@ import { uploadToCloudinary } from './cloudinary';
 
 // Process bank statement file and extract transactions
 export async function processStatementFile(
-  file: Express.Multer.File,
+  file: any, // Using any for Multer file type
   password: string | undefined,
   userId: number,
   storage: IStorage
@@ -19,6 +19,17 @@ export async function processStatementFile(
   let bankName = 'Unknown Bank';
   let accountNumber = '';
   let statementPeriod = '';
+  
+  // Upload to Cloudinary first
+  let cloudinaryResult;
+  try {
+    console.log('Uploading to Cloudinary...');
+    cloudinaryResult = await uploadToCloudinary(file.buffer);
+    console.log('Cloudinary upload successful:', cloudinaryResult.secure_url);
+  } catch (error) {
+    console.error('Cloudinary upload failed:', error);
+    throw new Error('Failed to upload file to Cloudinary');
+  }
   
   // Determine file type and parse accordingly
   if (file.mimetype === 'application/pdf') {
@@ -47,6 +58,8 @@ export async function processStatementFile(
     userId,
     filename: file.originalname,
     fileType: file.mimetype === 'application/pdf' ? 'pdf' : 'excel',
+    fileUrl: cloudinaryResult.secure_url,
+    publicId: cloudinaryResult.public_id,
     bankName,
     accountNumber,
     statementPeriod,
