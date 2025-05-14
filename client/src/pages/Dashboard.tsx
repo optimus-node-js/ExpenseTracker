@@ -459,7 +459,7 @@ export default function Dashboard() {
                 </div>
                 <h3 className="text-lg font-bold ml-3">Cash Reserve</h3>
               </div>
-              <div className="text-2xl font-bold">₹{parseFloat(dashboardData?.user?.cashReserve || "0").toLocaleString('en-IN')}</div>
+              <div className="text-2xl font-bold">₹{parseFloat(userData?.cashReserve || "0").toLocaleString('en-IN')}</div>
               <p className="text-muted-foreground text-sm mt-1">Available on hand</p>
               <Button variant="outline" size="sm" className="w-full mt-4" asChild>
                 <Link to="/profile?tab=preferences">Manage Cash</Link>
