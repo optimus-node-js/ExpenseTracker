@@ -64,7 +64,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { EnhancedTransactionForm } from "@/components/EnhancedTransactionForm";
+import { EnhancedTransactionFormNew } from "@/components/EnhancedTransactionFormNew";
 import { toast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { formatCurrency, formatDate, getCategoryColor, getCategoryIcon, getPaymentModeIcon } from "@/lib/utils";
@@ -195,7 +195,7 @@ export default function Transactions() {
                   Record a new income or expense transaction.
                 </DialogDescription>
               </DialogHeader>
-              <EnhancedTransactionForm 
+              <EnhancedTransactionFormNew 
                 onSuccess={() => setOpenAddDialog(false)}
                 onCancel={() => setOpenAddDialog(false)}
               />
@@ -398,8 +398,8 @@ export default function Transactions() {
                         </div>
                         
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium truncate">{transaction.description}</div>
-                          <div className="text-sm text-muted-foreground flex items-center mt-1 flex-wrap">
+                          <div className="font-medium text-lg">{transaction.description}</div>
+                          <div className="text-sm text-muted-foreground flex items-center mt-1 flex-wrap space-x-2">
                             <div className="flex items-center">
                               <Calendar className="h-3 w-3 mr-1" />
                               {formatDate(transaction.date)}
@@ -411,7 +411,12 @@ export default function Transactions() {
                             </div>
                           </div>
                           <div className="flex mt-2 flex-wrap gap-2">
-                            <Badge variant="outline" className="text-xs">
+                            <Badge 
+                              variant="outline" 
+                              className="text-xs px-3 py-1 font-medium"
+                              style={{ backgroundColor: getCategoryColor(transaction.category), color: 'white' }}
+                            >
+                              <span className="mr-1">{getCategoryIcon(transaction.category)}</span>
                               {transaction.category}
                             </Badge>
                             {transaction.notes && (
@@ -426,16 +431,24 @@ export default function Transactions() {
                                 </TooltipContent>
                               </Tooltip>
                             )}
+                            
+                            {transaction.tags && transaction.tags.length > 0 && (
+                              transaction.tags.map((tag, index) => (
+                                <Badge key={index} variant="outline" className="text-xs bg-accent/50">
+                                  #{tag}
+                                </Badge>
+                              ))
+                            )}
                           </div>
                         </div>
                       </div>
                       
                       <div className="flex items-center justify-end gap-3 flex-shrink-0">
-                        <div className={`text-lg font-semibold whitespace-nowrap ${
+                        <div className={`text-xl font-bold whitespace-nowrap ${
                           transaction.type === 'income' ? 'text-green-500' : 'text-red-500'
                         }`}>
                           {transaction.type === 'income' ? '+ ' : '- '}
-                          {formatCurrency(Number(transaction.amount))}
+                          ₹{parseFloat(transaction.amount).toLocaleString('en-IN')}
                         </div>
                         
                         <Button 
