@@ -72,9 +72,39 @@ export default function Dashboard() {
     },
   });
 
-  // Calculate total assets and liabilities
-  const totalAssets = dashboardData?.assets?.reduce((acc, asset) => acc + asset.value, 0) || 0;
-  const totalLiabilities = dashboardData?.liabilities?.reduce((acc, liability) => acc + liability.value, 0) || 0;
+  // Fetch investments (assets)
+  const { data: investments = [] } = useQuery({
+    queryKey: ["/api/investments"],
+    queryFn: async () => {
+      try {
+        const response = await apiRequest('GET', '/api/investments');
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching investments:", error);
+        return [];
+      }
+    },
+  });
+
+  // Fetch loans (liabilities)
+  const { data: loans = [] } = useQuery({
+    queryKey: ["/api/loans"],
+    queryFn: async () => {
+      try {
+        const response = await apiRequest('GET', '/api/loans');
+        return await response.json();
+      } catch (error) {
+        console.error("Error fetching loans:", error);
+        return [];
+      }
+    },
+  });
+
+  // Calculate total assets from investments
+  const totalAssets = investments.reduce((acc: number, asset: any) => acc + (Number(asset.amount) || 0), 0);
+  
+  // Calculate total liabilities from loans
+  const totalLiabilities = loans.reduce((acc: number, liability: any) => acc + (Number(liability.amount) || 0), 0);
   
   return (
     <div className="pb-8">
@@ -287,21 +317,27 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y">
-              {dashboardData?.assets?.map((asset, index) => (
+              {investments.map((investment: any, index: number) => (
                 <div key={index} className="flex items-center justify-between p-4">
                   <div>
                     <div className="flex items-center">
-                      {asset.type === 'liquid' && <DollarSign className="h-4 w-4 text-primary mr-2" />}
-                      {asset.type === 'fixed' && <Building className="h-4 w-4 text-secondary mr-2" />}
-                      {asset.type === 'investment' && <TrendingUp className="h-4 w-4 text-accent mr-2" />}
-                      {asset.type === 'property' && <Building className="h-4 w-4 text-success mr-2" />}
-                      <span className="font-medium">{asset.name}</span>
+                      {investment.type === 'stock' && <TrendingUp className="h-4 w-4 text-accent mr-2" />}
+                      {investment.type === 'mutual_fund' && <BarChart3 className="h-4 w-4 text-secondary mr-2" />}
+                      {investment.type === 'gold' && <DollarSign className="h-4 w-4 text-primary mr-2" />}
+                      {investment.type === 'fixed_deposit' && <Building className="h-4 w-4 text-success mr-2" />}
+                      {investment.type === 'real_estate' && <Home className="h-4 w-4 text-warning mr-2" />}
+                      {!investment.type && <CircleDollarSign className="h-4 w-4 text-primary mr-2" />}
+                      <span className="font-medium">{investment.name || 'Investment'}</span>
                     </div>
-                    <p className="text-muted-foreground text-xs">Growth: {asset.growth}% p.a.</p>
+                    <p className="text-muted-foreground text-xs">
+                      {investment.expectedReturn ? `Expected Return: ${investment.expectedReturn}% p.a.` : 'No return data'}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold">₹{asset.value.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground">{((asset.value / totalAssets) * 100).toFixed(1)}% of assets</p>
+                    <p className="font-semibold">₹{Number(investment.amount || 0).toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {totalAssets > 0 ? `${((Number(investment.amount || 0) / totalAssets) * 100).toFixed(1)}% of assets` : '0% of assets'}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -316,7 +352,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y">
-              {dashboardData?.liabilities?.map((liability, index) => (
+              {loans.map((loan: any, index: number) => (
                 <div key={index} className="flex items-center justify-between p-4">
                   <div>
                     <div className="flex items-center">

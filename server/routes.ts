@@ -414,16 +414,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }))
         .sort((a, b) => (b.value as number) - (a.value as number));
       
-      // Get monthly trend (mock for now)
-      const monthlyTrend = [
-        { month: "Jan", income: 95000, expense: 62000 },
-        { month: "Feb", income: 98000, expense: 67000 },
-        { month: "Mar", income: 105000, expense: 69000 },
-        { month: "Apr", income: 110000, expense: 72000 },
-        { month: "May", income: 118000, expense: 75000 },
-        { month: "Jun", income: 115000, expense: 77000 },
-        { month: "Jul", income: 125000, expense: 78450 },
-      ];
+      // Get monthly trend (calculated from actual transaction data)
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      
+      // Initialize monthly data with zeros for all months up to current month
+      const monthlyTrend = months.slice(0, now.getMonth() + 1).map(month => ({
+        month,
+        income: 0,
+        expense: 0
+      }));
+      
+      // Populate with actual transaction data
+      transactions.forEach(transaction => {
+        const transactionDate = new Date(transaction.date);
+        // Only consider transactions from current year
+        if (transactionDate.getFullYear() === currentYear) {
+          const monthIndex = transactionDate.getMonth();
+          if (transaction.type === "income") {
+            monthlyTrend[monthIndex].income += Number(transaction.amount);
+          } else if (transaction.type === "expense") {
+            monthlyTrend[monthIndex].expense += Number(transaction.amount);
+          }
+        }
+      });
       
       // Get recent transactions
       const recentTransactions = transactions
