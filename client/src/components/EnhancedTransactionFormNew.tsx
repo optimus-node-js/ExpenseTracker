@@ -256,10 +256,7 @@ export function EnhancedTransactionFormNew({
   
   // Transaction creation mutation
   const mutation = useMutation({
-    mutationFn: (data: TransactionFormValues) => apiRequest('/api/transactions', { 
-      method: 'POST',
-      body: JSON.stringify(data)
-    }),
+    mutationFn: (data: TransactionFormValues) => apiRequest('POST', '/api/transactions', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
       queryClient.invalidateQueries({ queryKey: ['/api/dashboard'] });

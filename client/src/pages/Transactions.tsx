@@ -433,7 +433,7 @@ export default function Transactions() {
                             )}
                             
                             {transaction.tags && transaction.tags.length > 0 && (
-                              transaction.tags.map((tag, index) => (
+                              transaction.tags.map((tag: string, index: number) => (
                                 <Badge key={index} variant="outline" className="text-xs bg-accent/50">
                                   #{tag}
                                 </Badge>
