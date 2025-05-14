@@ -25,7 +25,11 @@ import {
   TrendingUp,
   BadgeDollarSign,
   Coins,
-  HandCoins
+  HandCoins,
+  Home,
+  CircleDollarSign,
+  Landmark,
+  FileText
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { TransactionForm } from "@/components/TransactionForm";
@@ -210,14 +214,14 @@ export default function Dashboard() {
                 <p className="text-muted-foreground text-sm mb-1">Monthly Inflow</p>
                 <div className="flex items-center">
                   <ArrowUp className="h-4 w-4 text-success mr-1" />
-                  <span className="text-lg font-semibold">₹{(dashboardData?.cashFlow?.inflow || 0).toLocaleString()}</span>
+                  <span className="text-lg font-semibold">₹{(dashboardData?.totalIncome || 0).toLocaleString()}</span>
                 </div>
               </div>
               <div>
                 <p className="text-muted-foreground text-sm mb-1">Monthly Outflow</p>
                 <div className="flex items-center">
                   <ArrowDown className="h-4 w-4 text-destructive mr-1" />
-                  <span className="text-lg font-semibold">₹{(dashboardData?.cashFlow?.outflow || 0).toLocaleString()}</span>
+                  <span className="text-lg font-semibold">₹{(dashboardData?.totalExpenses || 0).toLocaleString()}</span>
                 </div>
               </div>
               <div>
@@ -289,9 +293,15 @@ export default function Dashboard() {
           <CardContent>
             <div className="text-center py-4">
               <h3 className="text-3xl font-bold font-heading mb-2">₹{((totalAssets - totalLiabilities) || 0).toLocaleString()}</h3>
-              <Badge variant="outline" className={`bg-success/10 text-success`}>
-                {dashboardData?.netWorthChange?.isPositive ? "+" : ""}{dashboardData?.netWorthChange?.value}% from last month
-              </Badge>
+              {(totalAssets > 0 || totalLiabilities > 0) ? (
+                <Badge variant="outline" className={`bg-success/10 text-success`}>
+                  Your financial overview
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="bg-primary/10 text-primary">
+                  Add your assets and loans
+                </Badge>
+              )}
               
               <div className="mt-6">
                 <div className="flex justify-between mb-1">
@@ -356,17 +366,30 @@ export default function Dashboard() {
                 <div key={index} className="flex items-center justify-between p-4">
                   <div>
                     <div className="flex items-center">
-                      {liability.name.includes('Credit') ? 
-                        <CreditCard className="h-4 w-4 text-destructive mr-2" /> : 
-                        <Building className="h-4 w-4 text-muted-foreground mr-2" />
-                      }
-                      <span className="font-medium">{liability.name}</span>
+                      {loan.type === 'credit_card' && 
+                        <CreditCard className="h-4 w-4 text-destructive mr-2" />}
+                      {loan.type === 'home_loan' && 
+                        <Home className="h-4 w-4 text-muted-foreground mr-2" />}
+                      {loan.type === 'personal_loan' && 
+                        <FileText className="h-4 w-4 text-accent mr-2" />}
+                      {loan.type === 'auto_loan' && 
+                        <CircleDollarSign className="h-4 w-4 text-secondary mr-2" />}
+                      {loan.type === 'education_loan' && 
+                        <Building className="h-4 w-4 text-warning mr-2" />}
+                      {(!loan.type || !['credit_card', 'home_loan', 'personal_loan', 'auto_loan', 'education_loan'].includes(loan.type)) && 
+                        <Landmark className="h-4 w-4 text-primary mr-2" />}
+                      <span className="font-medium">{loan.name || 'Loan'}</span>
                     </div>
-                    <p className="text-muted-foreground text-xs">Interest: {liability.interestRate}% • {liability.remainingTenure} {liability.remainingTenure === 1 ? 'month' : 'months'} left</p>
+                    <p className="text-muted-foreground text-xs">
+                      {loan.interestRate ? `Interest: ${loan.interestRate}% • ` : ''}
+                      {loan.borrowedFrom ? `From: ${loan.borrowedFrom}` : loan.lentTo ? `To: ${loan.lentTo}` : ''}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold">₹{liability.value.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground">{((liability.value / totalLiabilities) * 100).toFixed(1)}% of debt</p>
+                    <p className="font-semibold">₹{Number(loan.amount || 0).toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {totalLiabilities > 0 ? `${((Number(loan.amount || 0) / totalLiabilities) * 100).toFixed(1)}% of debt` : '0% of debt'}
+                    </p>
                   </div>
                 </div>
               ))}
