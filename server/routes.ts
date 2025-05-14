@@ -379,19 +379,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? Math.round((totalExpenses / totalBudget) * 100) 
         : 0;
       
-      // Calculate changes (mock for now)
+      // Calculate changes (using 0 for initial data)
       const incomeChange = {
-        value: 12.5,
+        value: 0,
         isPositive: true,
       };
       
       const expenseChange = {
-        value: 8.3,
-        isPositive: false,
+        value: 0,
+        isPositive: true,
       };
       
       const savingsChange = {
-        value: 5.2,
+        value: 0,
         isPositive: true,
       };
       
