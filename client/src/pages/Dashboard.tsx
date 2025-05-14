@@ -32,39 +32,16 @@ import { TransactionForm } from "@/components/TransactionForm";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
-// Mock data for initial development
-const mockCategoryData = [
-  { name: "Food & Dining", value: 24350, color: "hsl(var(--chart-1))" },
-  { name: "Rent & Bills", value: 18200, color: "hsl(var(--chart-2))" },
-  { name: "Travel", value: 12500, color: "hsl(var(--chart-3))" },
-  { name: "Shopping", value: 9800, color: "hsl(var(--chart-4))" },
-  { name: "Others", value: 13600, color: "hsl(var(--chart-5))" },
-];
-
-const mockTrendData = [
-  { month: "Jan", income: 95000, expense: 62000 },
-  { month: "Feb", income: 98000, expense: 67000 },
-  { month: "Mar", income: 105000, expense: 69000 },
-  { month: "Apr", income: 110000, expense: 72000 },
-  { month: "May", income: 118000, expense: 75000 },
-  { month: "Jun", income: 115000, expense: 77000 },
-  { month: "Jul", income: 125000, expense: 78450 },
-];
-
-// Mock asset and liability data
-const mockAssetData = [
-  { name: "Savings Account", value: 250000, growth: 2.5, type: "liquid" },
-  { name: "Fixed Deposits", value: 500000, growth: 6.5, type: "fixed" },
-  { name: "Stocks", value: 350000, growth: 12.5, type: "investment" },
-  { name: "Mutual Funds", value: 275000, growth: 9.8, type: "investment" },
-  { name: "Property", value: 4500000, growth: 5.2, type: "property" },
-];
-
-const mockLiabilityData = [
-  { name: "Home Loan", value: 2800000, interestRate: 7.5, remainingTenure: 180 },
-  { name: "Car Loan", value: 450000, interestRate: 8.2, remainingTenure: 36 },
-  { name: "Personal Loan", value: 125000, interestRate: 12.5, remainingTenure: 12 },
-  { name: "Credit Card", value: 45000, interestRate: 36, remainingTenure: 1 },
+// Chart colors for consistent visualization
+const chartColors = [
+  "hsl(var(--chart-1))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-5))",
+  "hsl(var(--chart-6, 280 65% 60%))",
+  "hsl(var(--chart-7, 200 65% 60%))",
+  "hsl(var(--chart-8, 120 65% 60%))",
 ];
 
 export default function Dashboard() {
@@ -81,41 +58,8 @@ export default function Dashboard() {
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ["/api/dashboard"],
     queryFn: async () => {
-      // Will fetch from the API in production
-      return {
-        totalIncome: 125000,
-        totalExpenses: 78450,
-        monthlySavings: 46550,
-        budgetUtilization: 78.5,
-        incomeChange: {
-          value: 12.5,
-          isPositive: true,
-        },
-        expenseChange: {
-          value: 8.3,
-          isPositive: false,
-        },
-        savingsChange: {
-          value: 5.2,
-          isPositive: true,
-        },
-        categoryBreakdown: mockCategoryData,
-        monthlyTrend: mockTrendData,
-        recentTransactions: [],
-        assets: mockAssetData,
-        liabilities: mockLiabilityData,
-        netWorth: 3000000,
-        netWorthChange: {
-          value: 3.8,
-          isPositive: true,
-        },
-        cashFlow: {
-          inflow: 125000,
-          outflow: 78450,
-          netFlow: 46550,
-          flowRatio: 1.59, // inflow/outflow ratio
-        }
-      };
+      const response = await apiRequest('GET', '/api/dashboard');
+      return response.json();
     },
   });
 
@@ -123,60 +67,8 @@ export default function Dashboard() {
   const { data: transactions, isLoading: transactionsLoading } = useQuery<Transaction[]>({
     queryKey: ["/api/transactions"],
     queryFn: async () => {
-      // Will fetch from the API in production
-      const mockTransactions: Transaction[] = [
-        {
-          id: "1",
-          description: "Grocery Shopping",
-          amount: 2450,
-          date: "2023-07-24",
-          category: "Food",
-          type: "expense",
-          paymentMode: "Card",
-          source: "BigBasket",
-        },
-        {
-          id: "2",
-          description: "Salary Credit",
-          amount: 85000,
-          date: "2023-07-01",
-          category: "Income",
-          type: "income",
-          paymentMode: "Bank",
-          source: "ABC Technologies",
-        },
-        {
-          id: "3",
-          description: "House Rent",
-          amount: 18000,
-          date: "2023-07-05",
-          category: "Rent",
-          type: "expense",
-          paymentMode: "UPI",
-          source: "July 2023",
-        },
-        {
-          id: "4",
-          description: "Restaurant Dinner",
-          amount: 4200,
-          date: "2023-07-15",
-          category: "Food",
-          type: "expense",
-          paymentMode: "Card",
-          source: "Taj Hotel",
-        },
-        {
-          id: "5",
-          description: "Fuel Expenses",
-          amount: 3100,
-          date: "2023-07-22",
-          category: "Travel",
-          type: "expense",
-          paymentMode: "Cash",
-          source: "Indian Oil",
-        },
-      ];
-      return mockTransactions;
+      const response = await apiRequest('GET', '/api/transactions');
+      return response.json();
     },
   });
 
