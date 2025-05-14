@@ -228,26 +228,39 @@ export default function Dashboard() {
                 <p className="text-muted-foreground text-sm mb-1">Net Flow</p>
                 <div className="flex items-center">
                   <Wallet className="h-4 w-4 text-primary mr-1" />
-                  <span className="text-lg font-semibold">₹{(dashboardData?.cashFlow?.netFlow || 0).toLocaleString()}</span>
+                  <span className="text-lg font-semibold">₹{(dashboardData?.monthlySavings || 0).toLocaleString()}</span>
                 </div>
               </div>
             </div>
             <div className="mt-4">
               <p className="text-muted-foreground text-sm mb-1">Cash Flow Ratio (Income/Expense)</p>
-              <Progress value={(dashboardData?.cashFlow?.flowRatio || 1) * 50} className="h-2 mt-1" />
+              <Progress 
+                value={dashboardData?.totalExpenses && dashboardData?.totalExpenses > 0 
+                  ? (dashboardData?.totalIncome / dashboardData?.totalExpenses) * 50
+                  : 50} 
+                className="h-2 mt-1" 
+              />
               <div className="flex justify-between mt-1">
                 <span className="text-xs text-muted-foreground">0</span>
                 <span className="text-xs text-muted-foreground">1.0</span>
                 <span className="text-xs text-muted-foreground">2.0+</span>
               </div>
               <p className="text-sm mt-2">
-                <span className="font-medium">{dashboardData?.cashFlow?.flowRatio?.toFixed(2) || '0.00'}</span> - {
-                (dashboardData?.cashFlow?.flowRatio || 0) >= 1.5 
-                  ? "Excellent savings rate" 
-                  : (dashboardData?.cashFlow?.flowRatio || 0) >= 1.2 
-                    ? "Good savings rate" 
-                    : "Needs improvement"
-                }
+                {dashboardData?.totalExpenses && dashboardData?.totalExpenses > 0 ? (
+                  <>
+                    <span className="font-medium">
+                      {(dashboardData?.totalIncome / dashboardData?.totalExpenses).toFixed(2) || '0.00'}
+                    </span> - {
+                    (dashboardData?.totalIncome / dashboardData?.totalExpenses) >= 1.5 
+                      ? "Excellent savings rate" 
+                      : (dashboardData?.totalIncome / dashboardData?.totalExpenses) >= 1.2 
+                        ? "Good savings rate" 
+                        : "Needs improvement"
+                    }
+                  </>
+                ) : (
+                  <span className="font-medium">No expenses recorded yet</span>
+                )}
               </p>
             </div>
           </CardContent>
