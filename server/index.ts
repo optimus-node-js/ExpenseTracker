@@ -1,4 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session";
+import { v4 as uuidv4 } from "uuid";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { connectToMongoDB } from "./db/mongodb";
@@ -6,6 +8,21 @@ import { connectToMongoDB } from "./db/mongodb";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Set up session middleware
+app.use(
+  session({
+    genid: () => uuidv4(),
+    secret: process.env.SESSION_SECRET || 'finance-tracker-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+    }
+  })
+);
 
 app.use((req, res, next) => {
   const start = Date.now();

@@ -1057,13 +1057,134 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
+  // ===== Authentication Endpoints =====
+
+  // Signup - Create a new user
+  app.post("/api/signup", 
+    [
+      body("username").notEmpty().withMessage("Username is required")
+        .isLength({ min: 3 }).withMessage("Username must be at least 3 characters long")
+        .matches(/^[a-zA-Z0-9_]+$/).withMessage("Username can only contain letters, numbers, and underscores"),
+      body("email").isEmail().withMessage("Valid email is required"),
+      body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters long"),
+      body("fullName").notEmpty().withMessage("Full name is required")
+    ],
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: "Validation failed", errors: errors.array() });
+      }
+
+      try {
+        const { username, email, password, fullName } = req.body;
+        
+        // Check if user already exists
+        const existingUser = await storage.getUserByUsername(username);
+        if (existingUser) {
+          return res.status(400).json({ message: "Username already exists" });
+        }
+        
+        // Create new user
+        const newUser = await storage.createUser({
+          username,
+          email,
+          password, // In a real app, this would be hashed using bcrypt
+          fullName,
+          cashReserve: 0 // Default starting value
+        });
+        
+        // Remove password from response
+        const { password: _, ...userWithoutPassword } = newUser;
+        
+        res.status(201).json({
+          message: "User created successfully",
+          user: userWithoutPassword
+        });
+      } catch (error) {
+        console.error("Signup error:", error);
+        res.status(500).json({ message: "Failed to create user account" });
+      }
+    }
+  );
+  
+  // Login
+  app.post("/api/login",
+    [
+      body("username").notEmpty().withMessage("Username is required"),
+      body("password").notEmpty().withMessage("Password is required")
+    ],
+    async (req, res) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ message: "Validation failed", errors: errors.array() });
+      }
+
+      try {
+        const { username, password } = req.body;
+        
+        // Find user by username
+        const user = await storage.getUserByUsername(username);
+        
+        // Check if user exists and password matches
+        if (!user || user.password !== password) { // In a real app, use proper password comparison with bcrypt
+          return res.status(401).json({ message: "Invalid username or password" });
+        }
+        
+        // Set user session
+        if (req.session) {
+          req.session.userId = user.id;
+          req.session.isAuthenticated = true;
+        }
+        
+        // Remove password from response
+        const { password: _, ...userWithoutPassword } = user;
+        
+        res.json({
+          message: "Login successful",
+          user: userWithoutPassword
+        });
+      } catch (error) {
+        console.error("Login error:", error);
+        res.status(500).json({ message: "Failed to authenticate" });
+      }
+    }
+  );
+  
+  // Logout
+  app.post("/api/logout", (req, res) => {
+    if (req.session) {
+      req.session.destroy(err => {
+        if (err) {
+          return res.status(500).json({ message: "Failed to logout" });
+        }
+        
+        res.clearCookie("connect.sid"); // Clear the session cookie
+        res.json({ message: "Logout successful" });
+      });
+    } else {
+      res.json({ message: "No active session" });
+    }
+  });
+
   // ===== User Profile Endpoints =====
   
   // Get user profile
   app.get("/api/user/profile", async (req, res) => {
     try {
-      // In a real application, this would come from session/auth middleware
-      // For now, we'll create a default user if one doesn't exist
+      // Check if user is authenticated via session
+      if (req.session && req.session.userId) {
+        // Get user from storage using session
+        const user = await storage.getUser(req.session.userId);
+        
+        if (user) {
+          // Don't send password in the response
+          const { password, ...userProfile } = user;
+          return res.json(userProfile);
+        }
+      }
+      
+      // For development purposes, create/return a default user if no session
+      // In production, this would be removed and unauthorized access rejected
       let user = await storage.getUserByUsername("user");
       
       if (!user) {
