@@ -78,7 +78,7 @@ export default function Landing() {
       </header>
 
       {/* Hero section */}
-      <section className="py-12 md:py-24 lg:py-32 container px-4 md:px-6">
+      <section className="py-12 md:py-24 lg:py-32 container px-4 md:px-6 mx-auto">
         <div className="flex flex-col lg:flex-row gap-8 items-center">
           <div className="flex-1 space-y-6">
             <div className="space-y-2">
@@ -118,9 +118,9 @@ export default function Landing() {
           </div>
           <div className="flex-1 p-4 rounded-lg border bg-card shadow-sm w-full max-w-md lg:max-w-none">
             <img 
-              src="https://res.cloudinary.com/dzr4phlox/image/upload/v1716116700/expense-tracker-dashboard_zmmvny.png" 
+              src="/dashboard-preview.png" 
               alt="FinTrackr Dashboard Preview" 
-              className="rounded-md object-cover aspect-video shadow-md" 
+              className="rounded-md object-cover aspect-video shadow-md w-full" 
             />
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function Landing() {
 
       {/* Features section */}
       <section id="features" className="bg-secondary/10 py-16 md:py-24">
-        <div className="container px-4 md:px-6">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="text-center space-y-3 mb-12">
             <h2 className="text-2xl md:text-4xl font-bold">Everything You Need For Financial Success</h2>
             <p className="text-muted-foreground md:text-lg max-w-2xl mx-auto">
@@ -173,7 +173,7 @@ export default function Landing() {
 
       {/* How it works */}
       <section id="how-it-works" className="py-16 md:py-24">
-        <div className="container px-4 md:px-6">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="text-center space-y-3 mb-12">
             <h2 className="text-2xl md:text-4xl font-bold">How FinTrackr Works</h2>
             <p className="text-muted-foreground md:text-lg max-w-2xl mx-auto">
@@ -203,7 +203,7 @@ export default function Landing() {
 
       {/* App preview */}
       <section className="py-16 md:py-24 bg-muted/50">
-        <div className="container px-4 md:px-6">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col lg:flex-row gap-8 items-center">
             <div className="flex-1 space-y-6">
               <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary">
@@ -221,12 +221,12 @@ export default function Landing() {
                 </Button>
               </div>
             </div>
-            <div className="flex-1 p-4 rounded-lg border bg-card shadow-sm w-full max-w-md">
+            <div className="flex-1 p-4 rounded-lg border bg-card shadow-sm w-full max-w-md flex justify-center">
               <img 
-                src="https://res.cloudinary.com/dzr4phlox/image/upload/v1716116701/expense-tracker-mobile_bqebyf.png" 
+                src="/mobile-preview.png" 
                 alt="FinTrackr Mobile Preview" 
                 className="rounded-md shadow-md mx-auto" 
-                style={{ maxHeight: "600px" }}
+                style={{ maxHeight: "600px", width: "auto" }}
               />
             </div>
           </div>
@@ -235,7 +235,7 @@ export default function Landing() {
 
       {/* FAQ Section */}
       <section id="faq" className="py-16 md:py-24">
-        <div className="container px-4 md:px-6">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="text-center space-y-3 mb-12">
             <h2 className="text-2xl md:text-4xl font-bold">Frequently Asked Questions</h2>
             <p className="text-muted-foreground md:text-lg max-w-2xl mx-auto">
@@ -282,7 +282,7 @@ export default function Landing() {
 
       {/* CTA */}
       <section className="py-16 md:py-20 bg-primary/5">
-        <div className="container px-4 md:px-6">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto">
             <h2 className="text-2xl md:text-4xl font-bold">Ready to Transform Your Financial Life?</h2>
             <p className="text-muted-foreground md:text-lg">
@@ -307,7 +307,7 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="bg-muted/30 py-12 mt-auto">
-        <div className="container px-4 md:px-6">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
