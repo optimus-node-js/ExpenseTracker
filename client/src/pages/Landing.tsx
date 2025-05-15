@@ -118,7 +118,7 @@ export default function Landing() {
           </div>
           <div className="flex-1 p-4 rounded-lg border bg-card shadow-sm w-full max-w-md lg:max-w-none">
             <img 
-              src="/dashboard-preview.png" 
+              src="https://res.cloudinary.com/dzr4phlox/image/upload/v1716116700/expense-tracker-dashboard_zmmvny.png" 
               alt="FinTrackr Dashboard Preview" 
               className="rounded-md object-cover aspect-video shadow-md w-full" 
             />
@@ -223,7 +223,7 @@ export default function Landing() {
             </div>
             <div className="flex-1 p-4 rounded-lg border bg-card shadow-sm w-full max-w-md flex justify-center">
               <img 
-                src="/mobile-preview.png" 
+                src="https://res.cloudinary.com/dzr4phlox/image/upload/v1716116701/expense-tracker-mobile_bqebyf.png" 
                 alt="FinTrackr Mobile Preview" 
                 className="rounded-md shadow-md mx-auto" 
                 style={{ maxHeight: "600px", width: "auto" }}
