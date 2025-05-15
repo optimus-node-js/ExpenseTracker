@@ -19,6 +19,8 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, BarChart2, CreditCard, DollarSign, FileText, LineChart, PieChart, Smartphone, Users } from "lucide-react";
+import EmptyStateDashboard from '@/components/EmptyStateDashboard';
+import MobilePreview from '@/components/MobilePreview';
 
 export default function Landing() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -117,11 +119,9 @@ export default function Landing() {
             </div>
           </div>
           <div className="flex-1 p-4 rounded-lg border bg-card shadow-sm w-full max-w-md lg:max-w-none">
-            <img 
-              src="https://res.cloudinary.com/dzr4phlox/image/upload/v1716116700/expense-tracker-dashboard_zmmvny.png" 
-              alt="FinTrackr Dashboard Preview" 
-              className="rounded-md object-cover aspect-video shadow-md w-full" 
-            />
+            <div className="rounded-md shadow-md w-full aspect-video">
+              <EmptyStateDashboard />
+            </div>
           </div>
         </div>
       </section>
@@ -222,12 +222,7 @@ export default function Landing() {
               </div>
             </div>
             <div className="flex-1 p-4 rounded-lg border bg-card shadow-sm w-full max-w-md flex justify-center">
-              <img 
-                src="https://res.cloudinary.com/dzr4phlox/image/upload/v1716116701/expense-tracker-mobile_bqebyf.png" 
-                alt="FinTrackr Mobile Preview" 
-                className="rounded-md shadow-md mx-auto" 
-                style={{ maxHeight: "600px", width: "auto" }}
-              />
+              <MobilePreview />
             </div>
           </div>
         </div>
