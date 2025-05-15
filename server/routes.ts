@@ -6,6 +6,7 @@ import { storage as memStorage } from "./storage";
 import multer from "multer";
 import { processStatementFile } from "./utils/transaction-parser";
 import { body, param, validationResult } from "express-validator";
+import { isAuthenticated } from "./middleware/auth";
 import { 
   insertTransactionSchema, 
   insertBudgetSchema, 
@@ -48,7 +49,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===== Transactions Endpoints =====
 
   // Get all transactions
-  app.get("/api/transactions", async (req, res) => {
+  app.get("/api/transactions", isAuthenticated, async (req, res) => {
     try {
       // Get the active user
       const user = await storage.getUserByUsername("user");
