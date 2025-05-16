@@ -1,4 +1,5 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
+import type { ParamsDictionary } from "express-serve-static-core";
 import { createServer, type Server } from "http";
 import { isConnected } from "./db/mongodb";
 import { MongoDBStorage } from "./storage.mongodb";
@@ -7,6 +8,7 @@ import multer from "multer";
 import { processStatementFile } from "./utils/transaction-parser";
 import { body, param, validationResult } from "express-validator";
 import { isAuthenticated } from "./middleware/auth";
+import { ZodError } from "zod";
 import { 
   insertTransactionSchema, 
   insertBudgetSchema, 
@@ -14,8 +16,37 @@ import {
   insertLoanSchema,
   insertIncomeSourceSchema,
   insertInvestmentSchema,
-  insertSipSchema
+  insertSipSchema,
+  type Transaction,
+  type Budget,
+  type User,
+  type InsertTransaction,
+  type InsertBudget,
+  type InsertSubscription,
+  type InsertLoan,
+  type InsertIncomeSource,
+  type InsertInvestment,
+  type InsertSip
 } from "@shared/schema";
+
+// Type definitions for request parameters
+interface TypedRequestParams<T extends ParamsDictionary = ParamsDictionary> extends Request {
+  params: T;
+}
+
+interface TypedRequestBody<T> extends Request {
+  body: T;
+}
+
+interface TypedRequest<P extends ParamsDictionary = ParamsDictionary, B = unknown> extends Request {
+  params: P;
+  body: B;
+}
+
+// Error handling types
+interface ApiError extends Error {
+  statusCode?: number;
+}
 
 // Create a MongoDB storage instance or use in-memory storage as fallback
 const storage = isConnected() ? new MongoDBStorage() : memStorage;
@@ -26,7 +57,7 @@ const upload = multer({
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
-  fileFilter: (req, file, cb) => {
+  fileFilter: (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
     // Accept only PDF and Excel files
     if (
       file.mimetype === "application/pdf" ||
@@ -40,16 +71,121 @@ const upload = multer({
   },
 });
 
+// Helper functions
+const handleError = (error: unknown, res: Response): void => {
+  console.error("Error:", error);
+  if (error instanceof Error) {
+    const statusCode = (error as ApiError).statusCode || 500;
+    res.status(statusCode).json({ message: error.message });
+  } else {
+    res.status(500).json({ message: "An unknown error occurred" });
+  }
+};
+
+const getIdParam = (req: TypedRequestParams<{ id: string }>): number => {
+  const id = req.params?.id;
+  if (!id) {
+    throw new Error("ID parameter is required");
+  }
+  return parseInt(id, 10);
+};
+
+const validateSchema = (value: unknown) => {
+  try {
+    insertTransactionSchema.parse(value);
+    return true;
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
+      throw error;
+    }
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("Invalid transaction data");
+  }
+};
+
+const calculateTotals = (transactions: Transaction[]) => {
+  const totalIncome = transactions
+    .filter(t => t.type === "income")
+    .reduce((sum, t) => sum + Number(t.amount), 0);
+  
+  const totalExpenses = transactions
+    .filter(t => t.type === "expense")
+    .reduce((sum, t) => sum + Number(t.amount), 0);
+  
+  return { totalIncome, totalExpenses };
+};
+
+const calculateBudgetUtilization = (budgets: Budget[], totalExpenses: number) => {
+  const totalBudget = budgets
+    .filter(b => b.period === "monthly")
+    .reduce((sum, b) => sum + Number(b.amount), 0);
+  
+  return totalBudget > 0 
+    ? Math.round((totalExpenses / totalBudget) * 100) 
+    : 0;
+};
+
+const getCategoryBreakdown = (transactions: Transaction[]) => {
+  const categoryData: Record<string, number> = {};
+  transactions
+    .filter(t => t.type === "expense")
+    .forEach(t => {
+      if (!categoryData[t.category]) {
+        categoryData[t.category] = 0;
+      }
+      categoryData[t.category] += Number(t.amount);
+    });
+  
+  return Object.entries(categoryData)
+    .map(([name, value]) => ({
+      name,
+      value,
+      color: "", // Will be assigned on the client
+    }))
+    .sort((a, b) => b.value - a.value);
+};
+
+const getMonthlyTrend = (transactions: Transaction[]) => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  
+  // Initialize monthly data with zeros for all months up to current month
+  const monthlyTrend = months.slice(0, now.getMonth() + 1).map(month => ({
+    month,
+    income: 0,
+    expense: 0
+  }));
+  
+  // Populate with actual transaction data
+  transactions.forEach(transaction => {
+    const transactionDate = new Date(transaction.date);
+    // Only consider transactions from current year
+    if (transactionDate.getFullYear() === currentYear) {
+      const monthIndex = transactionDate.getMonth();
+      if (transaction.type === "income") {
+        monthlyTrend[monthIndex].income += Number(transaction.amount);
+      } else if (transaction.type === "expense") {
+        monthlyTrend[monthIndex].expense += Number(transaction.amount);
+      }
+    }
+  });
+  
+  return monthlyTrend;
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
-  app.get("/api/health", (req, res) => {
+  app.get("/api/health", (_req: Request, res: Response) => {
     res.json({ status: "UP" });
   });
 
   // ===== Transactions Endpoints =====
 
   // Get all transactions
-  app.get("/api/transactions", isAuthenticated, async (req, res) => {
+  app.get("/api/transactions", isAuthenticated, async (_req: Request, res: Response) => {
     try {
       // Get the active user
       const user = await storage.getUserByUsername("user");
@@ -60,22 +196,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const transactions = await storage.getAllTransactions(user.id);
       res.json(transactions);
     } catch (error) {
-      console.error("Error getting transactions:", error);
-      res.status(500).json({ message: "Failed to retrieve transactions" });
+      handleError(error, res);
     }
   });
 
   // Get single transaction
   app.get("/api/transactions/:id", 
     param("id").isNumeric(),
-    async (req, res) => {
+    async (req: TypedRequestParams<{ id: string }>, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
 
       try {
-        const id = parseInt(req.params.id);
+        const id = parseInt(req.params.id, 10);
+        if (isNaN(id)) {
+          return res.status(400).json({ message: "Invalid ID parameter" });
+        }
         const transaction = await storage.getTransaction(id);
         
         if (!transaction) {
@@ -84,23 +222,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         res.json(transaction);
       } catch (error) {
-        console.error("Error getting transaction:", error);
-        res.status(500).json({ message: "Failed to retrieve transaction" });
+        handleError(error, res);
       }
     }
   );
 
   // Create transaction
   app.post("/api/transactions", 
-    body().custom(value => {
-      try {
-        insertTransactionSchema.parse(value);
-        return true;
-      } catch (error) {
-        throw new Error(error.message);
-      }
-    }),
-    async (req, res) => {
+    body().custom(validateSchema),
+    async (req: TypedRequestBody<InsertTransaction>, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -114,15 +244,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         const transaction = await storage.createTransaction({
-          userId: user.id,
           ...req.body,
+          userId: user.id,
           date: new Date(req.body.date),
         });
         
         res.status(201).json(transaction);
       } catch (error) {
-        console.error("Error creating transaction:", error);
-        res.status(500).json({ message: "Failed to create transaction" });
+        handleError(error, res);
       }
     }
   );
@@ -130,42 +259,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update transaction
   app.put("/api/transactions/:id", 
     param("id").isNumeric(),
-    body().custom(value => {
-      try {
-        insertTransactionSchema.parse(value);
-        return true;
-      } catch (error) {
-        throw new Error(error.message);
-      }
-    }),
-    async (req, res) => {
+    body().custom(validateSchema),
+    async (req: TypedRequest<{ id: string }, InsertTransaction>, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
 
       try {
+        const id = parseInt(req.params.id, 10);
+        if (isNaN(id)) {
+          return res.status(400).json({ message: "Invalid ID parameter" });
+        }
+
         // Get the active user
         const user = await storage.getUserByUsername("user");
         if (!user) {
           return res.status(404).json({ message: "User not found" });
         }
-        
-        const id = parseInt(req.params.id);
+
         const transaction = await storage.updateTransaction(id, {
-          userId: user.id,
           ...req.body,
+          userId: user.id,
           date: new Date(req.body.date),
         });
-        
+
         if (!transaction) {
           return res.status(404).json({ message: "Transaction not found" });
         }
-        
+
         res.json(transaction);
       } catch (error) {
-        console.error("Error updating transaction:", error);
-        res.status(500).json({ message: "Failed to update transaction" });
+        handleError(error, res);
       }
     }
   );
@@ -180,7 +305,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       try {
-        const id = parseInt(req.params.id);
+        const id = parseInt(req.params?.id || '', 10);
+        if (isNaN(id)) {
+          return res.status(400).json({ message: "Invalid ID parameter" });
+        }
         const success = await storage.deleteTransaction(id);
         
         if (!success) {
@@ -218,7 +346,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       try {
-        const id = parseInt(req.params.id);
+        const id = parseInt(req.params?.id || '', 10);
+        if (isNaN(id)) {
+          return res.status(400).json({ message: "Invalid ID parameter" });
+        }
         const budget = await storage.getBudget(id);
         
         if (!budget) {
@@ -239,8 +370,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         insertBudgetSchema.parse(value);
         return true;
-      } catch (error) {
-        throw new Error(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          throw new Error(error.message);
+        }
+        throw new Error('Invalid budget data');
       }
     }),
     async (req, res) => {
@@ -284,8 +418,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         insertBudgetSchema.parse(value);
         return true;
-      } catch (error) {
-        throw new Error(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          throw new Error(error.message);
+        }
+        throw new Error('Invalid budget data');
       }
     }),
     async (req, res) => {
@@ -295,7 +432,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       try {
-        const id = parseInt(req.params.id);
+        const id = parseInt(req.params?.id || '', 10);
+        if (isNaN(id)) {
+          return res.status(400).json({ message: "Invalid ID parameter" });
+        }
         
         // Get existing budget to keep original dates
         const existingBudget = await storage.getBudget(id);
@@ -304,8 +444,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         const budget = await storage.updateBudget(id, {
-          userId: 1, // Using userId 1 for now
           ...req.body,
+          userId: 1, // Using userId 1 for now
           startDate: existingBudget.startDate,
           endDate: existingBudget.endDate,
         });
@@ -328,7 +468,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       try {
-        const id = parseInt(req.params.id);
+        const id = parseInt(req.params?.id || '', 10);
+        if (isNaN(id)) {
+          return res.status(400).json({ message: "Invalid ID parameter" });
+        }
         const success = await storage.deleteBudget(id);
         
         if (!success) {
@@ -361,24 +504,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const budgets = await storage.getAllBudgets(user.id);
       
       // Calculate totals
-      const totalIncome = transactions
-        .filter(t => t.type === "income")
-        .reduce((sum, t) => sum + Number(t.amount), 0);
-      
-      const totalExpenses = transactions
-        .filter(t => t.type === "expense")
-        .reduce((sum, t) => sum + Number(t.amount), 0);
+      const { totalIncome, totalExpenses } = calculateTotals(transactions);
       
       const monthlySavings = totalIncome - totalExpenses;
       
       // Calculate budget utilization
-      const totalBudget = budgets
-        .filter(b => b.period === "monthly")
-        .reduce((sum, b) => sum + Number(b.amount), 0);
-      
-      const budgetUtilization = totalBudget > 0 
-        ? Math.round((totalExpenses / totalBudget) * 100) 
-        : 0;
+      const budgetUtilization = calculateBudgetUtilization(budgets, totalExpenses);
       
       // Calculate changes (using 0 for initial data)
       const incomeChange = {
@@ -397,49 +528,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       // Get category breakdown
-      const categoryData = {};
-      transactions
-        .filter(t => t.type === "expense")
-        .forEach(t => {
-          if (!categoryData[t.category]) {
-            categoryData[t.category] = 0;
-          }
-          categoryData[t.category] += Number(t.amount);
-        });
+      const categoryData = getCategoryBreakdown(transactions);
       
-      const categoryBreakdown = Object.entries(categoryData)
-        .map(([name, value]) => ({
-          name,
-          value,
-          color: "", // Will be assigned on the client
-        }))
-        .sort((a, b) => (b.value as number) - (a.value as number));
+      const categoryBreakdown = categoryData;
       
       // Get monthly trend (calculated from actual transaction data)
-      const now = new Date();
-      const currentYear = now.getFullYear();
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      
-      // Initialize monthly data with zeros for all months up to current month
-      const monthlyTrend = months.slice(0, now.getMonth() + 1).map(month => ({
-        month,
-        income: 0,
-        expense: 0
-      }));
-      
-      // Populate with actual transaction data
-      transactions.forEach(transaction => {
-        const transactionDate = new Date(transaction.date);
-        // Only consider transactions from current year
-        if (transactionDate.getFullYear() === currentYear) {
-          const monthIndex = transactionDate.getMonth();
-          if (transaction.type === "income") {
-            monthlyTrend[monthIndex].income += Number(transaction.amount);
-          } else if (transaction.type === "expense") {
-            monthlyTrend[monthIndex].expense += Number(transaction.amount);
-          }
-        }
-      });
+      const monthlyTrend = getMonthlyTrend(transactions);
       
       // Get recent transactions
       const recentTransactions = transactions
@@ -524,18 +618,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
           message: "File processed successfully",
           ...result
         });
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error processing statement:", error);
         
         // Check if the error is related to a password-protected file
-        if (error.message === "Password required" || error.message.includes("password")) {
-          return res.status(401).json({ 
-            message: "Password required",
-            passwordRequired: true 
-          });
+        if (error instanceof Error) {
+          if (error.message === "Password required" || error.message.includes("password")) {
+            return res.status(401).json({ 
+              message: "Password required",
+              passwordRequired: true 
+            });
+          }
+          res.status(500).json({ message: "Failed to process statement: " + error.message });
+        } else {
+          res.status(500).json({ message: "Failed to process statement" });
         }
-        
-        res.status(500).json({ message: "Failed to process statement: " + error.message });
       }
     }
   );
@@ -560,14 +657,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     [
       param("id").isInt().withMessage("Subscription ID must be an integer")
     ],
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
 
       try {
-        const id = parseInt(req.params.id);
+        const id = parseInt(req.params?.id || '', 10);
+        if (isNaN(id)) {
+          return res.status(400).json({ message: "Invalid ID parameter" });
+        }
         const subscription = await storage.getSubscription(id);
         
         if (!subscription) {
@@ -596,7 +696,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       body("autoRenew").isBoolean().withMessage("Auto renew must be a boolean"),
       body("active").isBoolean().withMessage("Active must be a boolean")
     ],
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -613,9 +713,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const subscription = await storage.createSubscription(validatedData);
         res.status(201).json(subscription);
-      } catch (error) {
-        console.error("Error creating subscription:", error);
-        res.status(500).json({ message: "Failed to create subscription" });
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          throw new Error(error.message);
+        }
+        throw new Error('Invalid subscription data');
       }
     }
   );
@@ -635,7 +737,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       body("autoRenew").optional().isBoolean().withMessage("Auto renew must be a boolean"),
       body("active").optional().isBoolean().withMessage("Active must be a boolean")
     ],
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -687,14 +789,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     [
       param("id").isInt().withMessage("Subscription ID must be an integer")
     ],
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
 
       try {
-        const id = parseInt(req.params.id);
+        const id = parseInt(req.params?.id || '', 10);
+        if (isNaN(id)) {
+          return res.status(400).json({ message: "Invalid ID parameter" });
+        }
         const success = await storage.deleteSubscription(id);
         
         if (!success) {
@@ -712,7 +817,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===== Loans/Lending/Borrowing Endpoints =====
   
   // Get all loans
-  app.get("/api/loans", async (req, res) => {
+  app.get("/api/loans", async (req: Request, res: Response) => {
     try {
       // Get the active user
       const user = await storage.getUserByUsername("user");
@@ -731,7 +836,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get single loan
   app.get("/api/loans/:id", 
     param("id").isNumeric(),
-    async (req, res) => {
+    async (req: TypedRequestParams<{ id: string }>, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -759,8 +864,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         insertLoanSchema.parse(value);
         return true;
-      } catch (error) {
-        throw new Error(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          throw new Error(error.message);
+        }
+        throw new Error('Invalid loan data');
       }
     }),
     async (req, res) => {
@@ -808,7 +916,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       body("interestRate").optional().isFloat({ min: 0 }).withMessage("Interest rate must be a positive number"),
       body("paidAmount").optional().isFloat({ min: 0 }).withMessage("Paid amount must be a positive number")
     ],
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -856,14 +964,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     [
       param("id").isInt().withMessage("Loan ID must be an integer")
     ],
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
 
       try {
-        const id = parseInt(req.params.id);
+        const id = parseInt(req.params?.id || '', 10);
+        if (isNaN(id)) {
+          return res.status(400).json({ message: "Invalid ID parameter" });
+        }
         const success = await storage.deleteLoan(id);
         
         if (!success) {
@@ -881,7 +992,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===== Income Sources Endpoints =====
   
   // Get all income sources
-  app.get("/api/income-sources", async (req, res) => {
+  app.get("/api/income-sources", async (req: Request, res: Response) => {
     try {
       // Get the active user
       const user = await storage.getUserByUsername("user");
@@ -903,11 +1014,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         insertIncomeSourceSchema.parse(value);
         return true;
-      } catch (error) {
-        throw new Error(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          throw new Error(error.message);
+        }
+        throw new Error('Invalid income source data');
       }
     }),
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -941,7 +1055,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===== Investments Endpoints =====
   
   // Get all investments
-  app.get("/api/investments", async (req, res) => {
+  app.get("/api/investments", async (req: Request, res: Response) => {
     try {
       // Get the active user
       const user = await storage.getUserByUsername("user");
@@ -963,11 +1077,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         insertInvestmentSchema.parse(value);
         return true;
-      } catch (error) {
-        throw new Error(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          throw new Error(error.message);
+        }
+        throw new Error('Invalid investment data');
       }
     }),
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -1001,7 +1118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===== SIP Endpoints =====
   
   // Get all SIPs
-  app.get("/api/sips", async (req, res) => {
+  app.get("/api/sips", async (req: Request, res: Response) => {
     try {
       // Get the active user
       const user = await storage.getUserByUsername("user");
@@ -1023,11 +1140,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         insertSipSchema.parse(value);
         return true;
-      } catch (error) {
-        throw new Error(error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          throw new Error(error.message);
+        }
+        throw new Error('Invalid SIP data');
       }
     }),
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -1070,7 +1190,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters long"),
       body("fullName").notEmpty().withMessage("Full name is required")
     ],
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ message: "Validation failed", errors: errors.array() });
@@ -1091,7 +1211,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           email,
           password, // In a real app, this would be hashed using bcrypt
           fullName,
-          cashReserve: 0 // Default starting value
+          cashReserve: '0' // Default starting value as string
         });
         
         // Remove password from response
@@ -1114,7 +1234,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       body("username").notEmpty().withMessage("Username is required"),
       body("password").notEmpty().withMessage("Password is required")
     ],
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ message: "Validation failed", errors: errors.array() });
@@ -1217,7 +1337,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       body("email").optional().isEmail().withMessage("Email must be valid"),
       body("cashReserve").optional().isNumeric().withMessage("Cash reserve must be a number")
     ],
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -1255,7 +1375,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     [
       body("amount").isNumeric().withMessage("Amount must be a number")
     ],
-    async (req, res) => {
+    async (req: Request, res: Response) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -1289,6 +1409,5 @@ export async function registerRoutes(app: Express): Promise<Server> {
   );
 
   const httpServer = createServer(app);
-
   return httpServer;
 }
