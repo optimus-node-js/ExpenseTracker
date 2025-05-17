@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { registerRoutes } from "./routes";
 import { connectToMongoDB } from "./db/mongodb";
 import cors from "cors";
+import { setupVite, log } from "./vite";
 
 const app = express();
 
@@ -73,6 +74,19 @@ app.use((req, res, next) => {
   }
   
   const server = await registerRoutes(app);
+
+  // Set up Vite middleware for the development server
+  if (process.env.NODE_ENV !== 'production') {
+    // Setup Vite dev server
+    await setupVite(app, server);
+    log('Vite middleware initialized in development mode');
+  } else {
+    // Serve static files in production
+    app.use(express.static('dist'));
+    app.get('*', (req, res) => {
+      res.sendFile('index.html', { root: 'dist' });
+    });
+  }
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
