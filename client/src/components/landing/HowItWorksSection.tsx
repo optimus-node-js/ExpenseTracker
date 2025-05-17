@@ -1,61 +1,112 @@
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
 
 const HowItWorksSection = () => {
   const steps = [
     {
-      number: 1,
-      title: "Create Your Account",
-      description: "Sign up for free and create your secure personal account in seconds."
+      number: "01",
+      title: "Sign up for free",
+      description: "Create your account in seconds with just an email. No credit card required to get started."
     },
     {
-      number: 2,
-      title: "Import Your Data",
-      description: "Upload bank statements or start tracking expenses manually with our easy interface."
+      number: "02",
+      title: "Track your expenses",
+      description: "Add your daily expenses manually or import bank statements to automatically categorize transactions."
     },
     {
-      number: 3,
-      title: "Gain Financial Insights",
-      description: "View beautiful visualizations and make smarter financial decisions with detailed analytics."
+      number: "03",
+      title: "Set budgets",
+      description: "Create weekly or monthly budgets for different categories to keep your spending in check."
+    },
+    {
+      number: "04",
+      title: "Visualize your finances",
+      description: "Get insights with beautiful charts and graphs that help you understand your spending patterns."
     }
   ];
 
   return (
-    <section id="how-it-works" className="relative py-24 md:py-28 bg-background overflow-hidden">
-      <div className="absolute inset-0 bg-grid opacity-30"></div>
-      
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="text-center space-y-3 mb-16 animate-fade-in">
-          <h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground/90 to-foreground/80">
-            How FinTrackr Works
+    <section id="how-it-works" className="py-16 md:py-24 container px-4 md:px-6 mx-auto">
+      <div className="space-y-12">
+        <div className="text-center space-y-4 max-w-[800px] mx-auto animate-fade-in">
+          <Badge variant="outline" className="px-3 py-1 border-primary/20 bg-primary/10 text-foreground">
+            How it works
+          </Badge>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tighter">
+            Simple steps to financial clarity
           </h2>
-          <p className="text-muted-foreground md:text-lg max-w-2xl mx-auto">
-            Get started in minutes and take control of your finances
+          <p className="text-muted-foreground text-lg max-w-[600px] mx-auto">
+            Getting started with FinTrackr is easy. Follow these simple steps to take control of your finances.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {steps.map((step, index) => (
-            <div key={step.number} className="relative group">
-              <div className="flex flex-col items-center text-center space-y-5 rounded-lg p-6 bg-card/50 backdrop-blur-sm border border-primary/10 shadow-md hover:shadow-lg transition-all duration-300 animate-fade-in" style={{ animationDelay: `${0.1 * index}s` }}>
-                <div className="relative">
-                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl group-hover:scale-110 transition-transform duration-500">
-                    {step.number}
-                  </div>
-                  <svg className="absolute -top-2 -right-2 w-6 h-6 text-primary animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-semibold group-hover:text-primary transition-colors duration-300">{step.title}</h3>
+            <div 
+              key={index} 
+              className="relative animate-fade-in"
+              style={{ animationDelay: `${0.1 * index}s` }}
+            >
+              {/* Connecting line between steps */}
+              {index < steps.length - 1 && (
+                <div className="hidden lg:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-primary/30 to-transparent z-0" style={{ width: 'calc(100% - 3rem)' }}></div>
+              )}
+              
+              {/* Step number */}
+              <div className="mb-4 text-4xl font-bold text-primary/20">
+                {step.number}
+              </div>
+              
+              {/* Step content */}
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold">{step.title}</h3>
                 <p className="text-muted-foreground">{step.description}</p>
               </div>
-              {index < 2 && (
-                <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2 z-10 text-primary/50">
-                  <ArrowRight className="h-8 w-8" />
-                </div>
-              )}
             </div>
           ))}
+        </div>
+        
+        {/* Stats/Testimonial section */}
+        <div className="mt-24 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          <div className="space-y-8 animate-fade-in">
+            <div className="grid grid-cols-2 gap-4 md:gap-8">
+              <div className="p-6 rounded-xl border bg-card space-y-2">
+                <p className="text-3xl md:text-4xl font-bold text-primary">5000+</p>
+                <p className="text-muted-foreground">Active Users</p>
+              </div>
+              <div className="p-6 rounded-xl border bg-card space-y-2">
+                <p className="text-3xl md:text-4xl font-bold text-primary">₹10Cr+</p>
+                <p className="text-muted-foreground">Expenses Tracked</p>
+              </div>
+              <div className="p-6 rounded-xl border bg-card space-y-2">
+                <p className="text-3xl md:text-4xl font-bold text-primary">15%</p>
+                <p className="text-muted-foreground">Avg. Savings Increase</p>
+              </div>
+              <div className="p-6 rounded-xl border bg-card space-y-2">
+                <p className="text-3xl md:text-4xl font-bold text-primary">12K+</p>
+                <p className="text-muted-foreground">Transactions Daily</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-8 rounded-xl border bg-card animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            <div className="flex flex-col space-y-4">
+              <div className="flex items-center space-x-2">
+                <span className="text-yellow-500">★★★★★</span>
+                <span className="text-muted-foreground">5.0 rating</span>
+              </div>
+              <blockquote className="text-xl md:text-2xl font-medium italic">
+                "FinTrackr has completely changed how I manage my finances. I've been able to save 20% more each month!"
+              </blockquote>
+              <div className="flex items-center mt-4">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary-foreground"></div>
+                <div className="ml-3">
+                  <p className="font-medium">Priya Sharma</p>
+                  <p className="text-sm text-muted-foreground">Product Manager</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
