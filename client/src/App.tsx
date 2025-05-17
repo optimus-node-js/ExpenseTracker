@@ -25,6 +25,11 @@ import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import Contact from "@/pages/Contact";
 import FAQ from "@/pages/FAQ";
+import Blog from "@/pages/Blog";
+import Careers from "@/pages/Careers";
+import ApiDocs from "@/pages/ApiDocs";
+import Guides from "@/pages/Guides";
+import About from "@/pages/About";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import Terms from "@/pages/Terms";
 
@@ -87,6 +92,11 @@ function Router() {
       <Route path="/signup" component={Signup} />
       <Route path="/contact" component={Contact} />
       <Route path="/faq" component={FAQ} />
+      <Route path="/blog" component={Blog} />
+      <Route path="/careers" component={Careers} />
+      <Route path="/api-docs" component={ApiDocs} />
+      <Route path="/guides" component={Guides} />
+      <Route path="/about" component={About} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/terms" component={Terms} />
       

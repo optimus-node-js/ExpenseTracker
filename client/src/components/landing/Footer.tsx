@@ -122,10 +122,14 @@ const Footer = () => {
           </p>
           
           <div className="flex gap-6 mt-4 md:mt-0">
-            {["Privacy", "Terms", "Cookies"].map((item) => (
-              <a key={item} href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-                {item}
-              </a>
+            {[
+              { name: "Privacy", path: "/privacy-policy" },
+              { name: "Terms", path: "/terms" },
+              { name: "Contact", path: "/contact" }
+            ].map((item) => (
+              <Link key={item.name} href={item.path} className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
+                {item.name}
+              </Link>
             ))}
           </div>
         </div>
