@@ -90,52 +90,45 @@ export default function ModernLanding() {
             </Link>
           </div>
           
-          {/* Theme toggle button - Pill switch design */}
-          <div 
+          {/* Theme toggle button - Minimal Circle Design */}
+          <button
             onClick={toggleTheme}
-            className="ml-2 relative h-10 w-20 rounded-full bg-blue-500 p-1 cursor-pointer shadow-lg flex items-center transition-all duration-500 ease-in-out"
+            className={`ml-2 relative w-12 h-12 rounded-full transition-all duration-500 ease-in-out cursor-pointer focus:outline-none ${
+              theme === 'dark' 
+                ? 'bg-slate-800 border border-slate-700' 
+                : 'bg-white border border-slate-200'
+            }`}
             aria-label="Toggle theme"
           >
-            {/* Toggle background */}
-            <div className={`absolute inset-0 rounded-full transition-colors duration-500 ${
-              theme === 'dark' ? 'bg-blue-700' : 'bg-blue-500'
-            }`}></div>
-            
-            {/* Sun side */}
-            <div className={`h-8 w-8 rounded-full bg-amber-400 flex items-center justify-center z-10 transition-all duration-500 ease-in-out ${
-              theme === 'dark' ? 'opacity-50' : 'opacity-100'
-            }`}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-5 h-5">
-                <circle cx="12" cy="12" r="5" />
-                <line x1="12" y1="1" x2="12" y2="3" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                <line x1="12" y1="21" x2="12" y2="23" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                <line x1="1" y1="12" x2="3" y2="12" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                <line x1="21" y1="12" x2="23" y2="12" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="white" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </div>
-            
-            {/* Slider */}
+            {/* Sun Icon (only visible in light mode) */}
             <div 
-              className={`absolute top-1 h-8 w-8 bg-white rounded-full shadow-md transform transition-transform duration-500 ease-in-out ${
-                theme === 'dark' ? 'translate-x-10' : 'translate-x-0'
+              className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ease-in-out ${
+                theme === 'dark' ? 'opacity-0 rotate-90 scale-75' : 'opacity-100 rotate-0 scale-100'
               }`}
-            ></div>
-            
-            {/* Moon side */}
-            <div className={`h-8 w-8 rounded-full bg-blue-700 ml-auto flex items-center justify-center z-10 transition-all duration-500 ease-in-out ${
-              theme === 'dark' ? 'opacity-100' : 'opacity-50'
-            }`}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-5 h-5">
-                <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z" />
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gold" className="w-6 h-6">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" 
+                  stroke="gold" 
+                  strokeWidth="2" 
+                  fill="none" 
+                  strokeLinecap="round" />
               </svg>
-              <div className="absolute top-1 right-1 w-1 h-1 bg-white rounded-full opacity-70"></div>
-              <div className="absolute bottom-2 left-2 w-1 h-1 bg-white rounded-full opacity-70"></div>
             </div>
-          </div>
+            
+            {/* Moon Icon (only visible in dark mode) */}
+            <div 
+              className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ease-in-out ${
+                theme === 'dark' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-75'
+              }`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#4d88ff" className="w-5 h-5">
+                <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+              </svg>
+              <div className="absolute top-3 right-3 w-1 h-1 bg-white rounded-full opacity-70"></div>
+              <div className="absolute bottom-3 right-4 w-1 h-1 bg-white rounded-full opacity-70"></div>
+            </div>
+          </button>
         </div>
       </header>
 
