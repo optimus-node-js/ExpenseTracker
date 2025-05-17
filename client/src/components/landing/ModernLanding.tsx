@@ -99,9 +99,9 @@ export default function ModernLanding() {
             className="ml-2"
           >
             {theme === 'dark' ? (
-              <SunIcon className="h-5 w-5" />
+              <Sun className="h-5 w-5" />
             ) : (
-              <MoonIcon className="h-5 w-5" />
+              <Moon className="h-5 w-5" />
             )}
           </Button>
         </div>

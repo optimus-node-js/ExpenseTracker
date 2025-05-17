@@ -13,18 +13,15 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 md:gap-8">
           <div className="space-y-4 animate-fade-in">
             <div className="flex items-center gap-2">
-              <BarChart2 className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">FinTrackr</span>
+              <span className="text-primary text-xl font-bold">₹</span>
+              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">RupeeTally</span>
             </div>
             <p className="text-muted-foreground">
               Your complete financial tracking solution designed for Indian users.
             </p>
             <p className="text-muted-foreground flex items-center gap-1">
               Made with 
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-              </span>
+              <span className="text-red-500">❤️</span>
               in India
             </p>
             
