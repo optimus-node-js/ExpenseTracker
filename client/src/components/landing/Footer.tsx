@@ -68,16 +68,21 @@ const Footer = () => {
           <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
             <h3 className="text-lg font-semibold mb-6">Resources</h3>
             <ul className="space-y-3">
-              {["Documentation", "Guides", "Support", "API"].map((item, i) => (
+              {[
+                { name: "Guides", path: "/guides" },
+                { name: "API Documentation", path: "/api-docs" },
+                { name: "FAQ", path: "/faq" },
+                { name: "Contact Support", path: "/contact" }
+              ].map((item, i) => (
                 <li 
-                  key={item}
+                  key={item.name}
                   className="animate-fade-in"
                   style={{ animationDelay: `${0.1 * i + 0.3}s` }}
                 >
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-2">
+                  <Link href={item.path} className="text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-2">
                     <span className="h-1 w-1 rounded-full bg-primary/50"></span>
-                    {item}
-                  </a>
+                    {item.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -86,16 +91,22 @@ const Footer = () => {
           <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
             <h3 className="text-lg font-semibold mb-6">Company</h3>
             <ul className="space-y-3">
-              {["About", "Blog", "Careers", "Privacy Policy", "Terms of Service"].map((item, i) => (
+              {[
+                { name: "About", path: "/about" },
+                { name: "Blog", path: "/blog" },
+                { name: "Careers", path: "/careers" },
+                { name: "Privacy Policy", path: "/privacy-policy" },
+                { name: "Terms of Service", path: "/terms" }
+              ].map((item, i) => (
                 <li 
-                  key={item}
+                  key={item.name}
                   className="animate-fade-in"
                   style={{ animationDelay: `${0.1 * i + 0.3}s` }}
                 >
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-2">
+                  <Link href={item.path} className="text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-2">
                     <span className="h-1 w-1 rounded-full bg-primary/50"></span>
-                    {item}
-                  </a>
+                    {item.name}
+                  </Link>
                 </li>
               ))}
             </ul>
