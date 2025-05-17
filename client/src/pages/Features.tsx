@@ -559,19 +559,23 @@ export default function Features() {
         
         {/* Features tabs */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full max-w-5xl mx-auto">
-          <div className="overflow-x-auto pb-3">
-            <TabsList className="grid min-w-max grid-cols-5 w-full mb-8">
-              {features.map((feature) => (
-                <TabsTrigger 
-                  key={feature.id} 
-                  value={feature.id}
-                  className="flex flex-col items-center gap-2 py-4 px-6"
-                >
-                  {feature.icon}
-                  <span className="text-sm whitespace-nowrap">{feature.title}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+          <div className="relative mb-8">
+            <div className="overflow-x-auto">
+              <TabsList className="flex min-w-full border-b-0 bg-muted/20 p-1">
+                {features.map((feature) => (
+                  <TabsTrigger 
+                    key={feature.id} 
+                    value={feature.id}
+                    className="flex-1 flex flex-col items-center justify-center gap-2 py-3 px-4 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-md transition-all"
+                  >
+                    <div className="flex-shrink-0">
+                      {feature.icon}
+                    </div>
+                    <span className="text-sm whitespace-nowrap">{feature.title}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
           </div>
           
           {features.map((feature) => (
