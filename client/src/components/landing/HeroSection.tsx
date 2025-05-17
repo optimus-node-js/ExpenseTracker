@@ -222,7 +222,7 @@ const HeroSection = () => {
           </div>
           
           {/* Floating cards */}
-          <div className="hidden md:block absolute top-[20%] md:left-0 lg:-left-10 xl:-left-20 animate-fade-in-delayed p-3 rounded-xl shadow-lg border bg-background/90 backdrop-blur-sm z-30" style={{ animationDelay: "0.6s", maxWidth: "220px" }}>
+          <div className="hidden md:block absolute -top-8 right-10 lg:right-20 animate-fade-in-delayed p-3 rounded-xl shadow-lg border bg-background/90 backdrop-blur-sm z-30" style={{ animationDelay: "0.6s", maxWidth: "220px" }}>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
