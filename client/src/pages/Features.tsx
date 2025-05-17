@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'wouter';
-import { ChevronLeft, IndianRupee, BarChart3, Receipt, PieChart, Wallet, LineChart, CreditCard, Landmark, BarChart4, FileSpreadsheet } from 'lucide-react';
+import { ChevronLeft, IndianRupee, BarChart3, Receipt, PieChart, Wallet, LineChart, CreditCard, Landmark, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import VisualAnalyticsGraphs from '@/components/features/VisualAnalyticsGraphs';
 
 export default function Features() {
   // Get the query parameter for the tab
@@ -229,6 +230,11 @@ export default function Features() {
           <p className="text-muted-foreground">
             Understand your finances at a glance with RupeeTally's comprehensive visual analytics. Our intuitive charts and graphs transform complex financial data into clear, actionable insights.
           </p>
+          
+          {/* Beautiful Interactive Financial Graphs */}
+          <div className="mb-8 mt-6 bg-card/50 rounded-xl border p-1">
+            <VisualAnalyticsGraphs />
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
@@ -529,24 +535,26 @@ export default function Features() {
         
         {/* Features tabs */}
         <Tabs defaultValue={getTabFromUrl()} className="w-full max-w-5xl mx-auto">
-          <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full mb-8">
-            {features.map((feature) => (
-              <TabsTrigger 
-                key={feature.id} 
-                value={feature.id}
-                className="flex flex-col items-center gap-2 py-4"
-                onClick={() => {
-                  // Update URL without full page refresh
-                  const url = new URL(window.location.href);
-                  url.searchParams.set('tab', feature.id);
-                  window.history.pushState({}, '', url);
-                }}
-              >
-                {feature.icon}
-                <span className="text-xs md:text-sm">{feature.title}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="overflow-x-auto pb-3">
+            <TabsList className="grid min-w-max grid-cols-5 w-full mb-8">
+              {features.map((feature) => (
+                <TabsTrigger 
+                  key={feature.id} 
+                  value={feature.id}
+                  className="flex flex-col items-center gap-2 py-4 px-6"
+                  onClick={() => {
+                    // Update URL without full page refresh
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('tab', feature.id);
+                    window.history.pushState({}, '', url);
+                  }}
+                >
+                  {feature.icon}
+                  <span className="text-sm whitespace-nowrap">{feature.title}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
           
           {features.map((feature) => (
             <TabsContent key={feature.id} value={feature.id}>
