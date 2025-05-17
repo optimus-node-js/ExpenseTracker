@@ -24,6 +24,30 @@ export default function Features() {
     return 'expense-tracking';
   };
   
+  // State for the active tab
+  const [activeTab, setActiveTab] = React.useState(getTabFromUrl());
+  
+  // Update the URL when the tab changes
+  const updateUrl = (tab: string) => {
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', tab);
+      window.history.replaceState({}, '', url.toString());
+    }
+  };
+  
+  // Handle tab change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    updateUrl(value);
+  };
+  
+  // Check URL parameters on initial load
+  useEffect(() => {
+    const tabFromUrl = getTabFromUrl();
+    setActiveTab(tabFromUrl);
+  }, []);
+  
   // Scroll to top on page load
   useEffect(() => {
     window.scrollTo({
@@ -534,7 +558,7 @@ export default function Features() {
         </motion.div>
         
         {/* Features tabs */}
-        <Tabs defaultValue={getTabFromUrl()} className="w-full max-w-5xl mx-auto">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full max-w-5xl mx-auto">
           <div className="overflow-x-auto pb-3">
             <TabsList className="grid min-w-max grid-cols-5 w-full mb-8">
               {features.map((feature) => (
@@ -542,12 +566,6 @@ export default function Features() {
                   key={feature.id} 
                   value={feature.id}
                   className="flex flex-col items-center gap-2 py-4 px-6"
-                  onClick={() => {
-                    // Update URL without full page refresh
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('tab', feature.id);
-                    window.history.pushState({}, '', url);
-                  }}
                 >
                   {feature.icon}
                   <span className="text-sm whitespace-nowrap">{feature.title}</span>
