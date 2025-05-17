@@ -1,5 +1,5 @@
 import { Sidebar } from "@/components/Sidebar";
-import { Header } from "@/components/Header";
+import { DashboardHeader } from "@/components/DashboardHeader";
 import { MobileNav } from "@/components/MobileNav";
 
 interface MainLayoutProps {
@@ -14,8 +14,8 @@ export function MainLayout({ children }: MainLayoutProps) {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Navbar */}
-        <Header />
+        {/* Top Navbar with proper notification and profile icons */}
+        <DashboardHeader />
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden bg-background p-4 md:p-6 has-mobile-nav">

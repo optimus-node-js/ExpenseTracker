@@ -35,6 +35,7 @@ import About from "@/pages/About";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import Terms from "@/pages/Terms";
 import GuideDetails from "@/pages/GuideDetails";
+import Features from "@/pages/Features";
 import ScrollToTop from "@/components/ScrollToTop";
 
 // Protected route component
@@ -103,6 +104,7 @@ function Router() {
       <Route path="/guides" component={Guides} />
       <Route path="/guides/:id" component={GuideDetails} />
       <Route path="/documentation" component={Documentation} />
+      <Route path="/features" component={Features} />
       <Route path="/about" component={About} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/terms" component={Terms} />
