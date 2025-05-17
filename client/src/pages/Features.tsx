@@ -558,26 +558,22 @@ export default function Features() {
         </motion.div>
         
         {/* Features tabs */}
-        <Tabs 
-          value={activeTab} 
-          onValueChange={handleTabChange} 
-          className="w-full max-w-5xl mx-auto"
-        >
-          <div className="border-b mb-6">
-            <TabsList className="flex justify-between bg-transparent">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="max-w-5xl mx-auto">
+          <div className="border-b mb-8">
+            <TabsList className="flex w-full justify-between bg-transparent p-0">
               {features.map((feature) => (
                 <TabsTrigger 
                   key={feature.id} 
                   value={feature.id}
-                  className="flex items-center gap-2 py-3 px-2 data-[state=active]:border-b-2 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:font-medium rounded-none"
+                  className="flex flex-col items-center gap-2 py-4 px-2 border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-primary rounded-none bg-transparent"
                 >
                   {feature.icon}
-                  <span className="hidden md:inline">{feature.title}</span>
+                  <span className="text-xs md:text-sm font-medium">{feature.title}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
           </div>
-          
+            
           {features.map((feature) => (
             <TabsContent key={feature.id} value={feature.id}>
               <motion.div
