@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Search, Calendar, User, Clock, ArrowRight, Filter } from 'lucide-react';
 import { Link } from 'wouter';
@@ -54,6 +54,14 @@ const categories = [
 ];
 
 export default function Blog() {
+  // Scroll to top on page load
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  }, []);
+  
   // Sample blog posts data
   const blogPosts: BlogPost[] = [
     {

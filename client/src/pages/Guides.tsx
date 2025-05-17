@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Search, BookOpen, Lightbulb, ArrowRight, Clock } from 'lucide-react';
 import { Link } from 'wouter';
@@ -39,6 +39,14 @@ type Guide = {
 };
 
 export default function Guides() {
+  // Scroll to top on page load
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  }, []);
+  
   // Sample guides data
   const guides: Guide[] = [
     {

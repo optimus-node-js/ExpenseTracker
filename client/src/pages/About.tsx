@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Check, Heart, Users, Shield, Target } from 'lucide-react';
 import { Link } from 'wouter';
@@ -7,6 +7,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 
 export default function About() {
+  // Scroll to top on page load
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  }, []);
+
   // Company values
   const values = [
     {

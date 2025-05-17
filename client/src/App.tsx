@@ -95,6 +95,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/faq" component={FAQ} />
       <Route path="/blog" component={Blog} />
+      <Route path="/blog/:id" component={BlogPost} />
       <Route path="/careers" component={Careers} />
       <Route path="/api-docs" component={ApiDocs} />
       <Route path="/guides" component={Guides} />
