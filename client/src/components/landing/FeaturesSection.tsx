@@ -17,7 +17,7 @@ const FeatureCard = ({
   link: string;
 }) => {
   return (
-    <Link href={link}>
+    <a href={link} className="no-underline text-foreground">
       <div 
         className="group flex flex-col p-6 space-y-4 rounded-xl border bg-card shadow-sm transition-all duration-200 hover:shadow-md animate-fade-in cursor-pointer"
         style={{ animationDelay: `${delay}s` }}
@@ -30,7 +30,7 @@ const FeatureCard = ({
           <p className="text-muted-foreground">{description}</p>
         </div>
       </div>
-    </Link>
+    </a>
   );
 };
 

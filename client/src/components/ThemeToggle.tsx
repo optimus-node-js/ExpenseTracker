@@ -12,14 +12,14 @@ export function ThemeToggle() {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={toggleTheme}
-      className="relative h-10 w-10 rounded-full flex items-center justify-center focus:outline-none"
+      className="relative h-10 w-10 rounded-full flex items-center justify-center focus:outline-none border-2 border-gray-200 dark:border-gray-700"
       aria-label="Toggle theme"
     >
       {/* Animated Background Circle */}
       <motion.div 
         className={cn(
           "absolute w-full h-full rounded-full",
-          isDark ? "bg-blue-600" : "bg-amber-400"
+          isDark ? "bg-blue-600" : "bg-amber-500"
         )}
         initial={false}
         animate={{ 

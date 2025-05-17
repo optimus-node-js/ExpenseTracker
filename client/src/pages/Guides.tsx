@@ -181,9 +181,20 @@ export default function Guides() {
 
   // Filter guides based on search query and category
   const filteredGuides = guides.filter(guide => {
+    // Make search more responsive by trimming whitespace and checking if query is empty
+    const query = searchQuery.trim().toLowerCase();
+    
+    // If search is empty, only filter by category
+    if (query === '') {
+      return selectedCategory === "All" || guide.category === selectedCategory;
+    }
+    
+    // Otherwise filter by both search and category
     const matchesSearch = 
-      guide.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      guide.description.toLowerCase().includes(searchQuery.toLowerCase());
+      guide.title.toLowerCase().includes(query) ||
+      guide.description.toLowerCase().includes(query) ||
+      guide.category.toLowerCase().includes(query) ||
+      guide.difficulty.toLowerCase().includes(query);
     
     const matchesCategory = selectedCategory === "All" || guide.category === selectedCategory;
     
@@ -245,10 +256,36 @@ export default function Guides() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
                 placeholder="Search for guides..." 
-                className="pl-10"
+                className="pl-10 focus-visible:ring-2 focus-visible:ring-primary"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Escape' && setSearchQuery('')}
+                autoFocus
               />
+              {searchQuery && (
+                <Button
+                  variant="ghost" 
+                  size="sm" 
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 p-0 rounded-full"
+                  onClick={() => setSearchQuery('')}
+                >
+                  <span className="sr-only">Clear search</span>
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="14" 
+                    height="14" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </Button>
+              )}
             </div>
           </div>
         </motion.div>
