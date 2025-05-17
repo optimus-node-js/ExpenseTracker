@@ -65,8 +65,8 @@ const HeroSection = () => {
         <div className="relative lg:pl-10 animate-fade-in" style={{ animationDelay: "0.3s" }}>
           <div className="relative z-10 rounded-xl overflow-hidden shadow-2xl border bg-background animate-pulse-slow">
             <img 
-              src="https://res.cloudinary.com/dk2ipmhtb/image/upload/v1716251683/fin-dashboard-preview_kkjn2k.jpg" 
-              alt="FinTrackr Dashboard"  
+              src="https://placehold.co/800x500/0066CC/FFFFFF?text=RupeeTally+Dashboard" 
+              alt="RupeeTally Dashboard"  
               className="w-full h-auto rounded-xl shadow-lg"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>

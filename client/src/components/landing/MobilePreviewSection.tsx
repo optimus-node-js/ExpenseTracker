@@ -85,8 +85,8 @@ const MobilePreviewSection = () => {
               </div>
               <div className="rounded-2xl overflow-hidden h-full w-full pt-6">
                 <img 
-                  src="https://res.cloudinary.com/dk2ipmhtb/image/upload/v1716252028/fin-mobile-app_nlk9ql.jpg" 
-                  alt="FinTrackr Mobile App"
+                  src="https://placehold.co/250x500/0066CC/FFFFFF?text=RupeeTally+App" 
+                  alt="RupeeTally Mobile App"
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -101,8 +101,8 @@ const MobilePreviewSection = () => {
               </div>
               <div className="rounded-2xl overflow-hidden h-full w-full pt-6">
                 <img 
-                  src="https://res.cloudinary.com/dk2ipmhtb/image/upload/v1716252061/fin-mobile-stats_hrnruj.jpg" 
-                  alt="FinTrackr Mobile Stats"
+                  src="https://placehold.co/250x500/0066CC/FFFFFF?text=RupeeTally+Stats" 
+                  alt="RupeeTally Mobile Stats"
                   className="h-full w-full object-cover"
                 />
               </div>
