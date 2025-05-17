@@ -90,19 +90,64 @@ export default function ModernLanding() {
             </Link>
           </div>
           
-          {/* Theme toggle button */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          {/* Theme toggle button - Circular design */}
+          <button 
             onClick={toggleTheme}
-            className="ml-2"
+            className={`ml-2 relative h-10 w-10 rounded-full flex items-center justify-center focus:outline-none transition-colors duration-300 ${
+              theme === 'dark' ? 'bg-blue-600' : 'bg-amber-400'
+            }`}
+            aria-label="Toggle theme"
           >
-            {theme === 'dark' ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
-          </Button>
+            {/* Sun Icon (light mode) */}
+            <div 
+              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+                theme === 'dark' ? 'opacity-0' : 'opacity-100'
+              }`}
+            >
+              <Sun className="h-5 w-5 text-white" />
+              
+              {/* Sun rays */}
+              <div className="absolute inset-0 overflow-hidden rounded-full">
+                {[...Array(8)].map((_, i) => (
+                  <div
+                    key={`ray-${i}`}
+                    className="absolute h-0.5 bg-yellow-100 origin-center"
+                    style={{
+                      left: "50%",
+                      top: "50%",
+                      width: "40%",
+                      transform: `rotate(${i * 45}deg) translateX(50%)`,
+                      opacity: 0.7
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+            
+            {/* Moon Icon (dark mode) */}
+            <div 
+              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+                theme === 'dark' ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <Moon className="h-5 w-5 text-white" />
+              
+              {/* Stars */}
+              <div className="absolute inset-0 overflow-hidden rounded-full">
+                {[...Array(4)].map((_, i) => (
+                  <div
+                    key={`star-${i}`}
+                    className="absolute w-1 h-1 bg-white rounded-full"
+                    style={{
+                      top: `${15 + (i * 18)}%`,
+                      left: `${15 + (i * 18)}%`,
+                      opacity: 0.7
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </button>
         </div>
       </header>
 
