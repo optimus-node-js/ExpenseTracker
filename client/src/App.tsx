@@ -34,6 +34,7 @@ import Documentation from "@/pages/Documentation";
 import About from "@/pages/About";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import Terms from "@/pages/Terms";
+import GuideDetails from "@/pages/GuideDetails";
 import ScrollToTop from "@/components/ScrollToTop";
 
 // Protected route component
