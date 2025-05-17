@@ -90,29 +90,30 @@ export default function ModernLanding() {
             </Link>
           </div>
           
-          {/* Theme toggle button - Minimal Circle Design (Smaller) */}
+          {/* Theme toggle button - Clean design without border */}
           <button
             onClick={toggleTheme}
-            className={`ml-2 relative w-9 h-9 rounded-full transition-all duration-500 ease-in-out cursor-pointer focus:outline-none ${
+            className={`ml-2 relative w-8 h-8 rounded-full transition-all duration-500 ease-in-out cursor-pointer focus:outline-none hover:ring-2 hover:ring-offset-2 hover:ring-blue-300 ${
               theme === 'dark' 
-                ? 'bg-slate-800 border border-slate-700' 
-                : 'bg-white border border-slate-200'
+                ? 'bg-slate-800' 
+                : 'bg-white'
             }`}
             aria-label="Toggle theme"
           >
             {/* Sun Icon (only visible in light mode) */}
             <div 
               className={`absolute inset-0 flex items-center justify-center transition-all duration-500 ease-in-out ${
-                theme === 'dark' ? 'opacity-0 rotate-90 scale-75' : 'opacity-100 rotate-0 scale-100'
+                theme === 'light' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-75'
               }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gold" className="w-4.5 h-4.5">
-                <circle cx="12" cy="12" r="4" />
-                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" 
-                  stroke="gold" 
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5">
+                <circle cx="12" cy="12" r="4" fill="#FFD700" />
+                <path 
+                  d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" 
+                  stroke="#FFD700" 
                   strokeWidth="2" 
-                  fill="none" 
-                  strokeLinecap="round" />
+                  strokeLinecap="round" 
+                />
               </svg>
             </div>
             
@@ -122,11 +123,11 @@ export default function ModernLanding() {
                 theme === 'dark' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-75'
               }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#4d88ff" className="w-4 h-4">
-                <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-4 h-4">
+                <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" fill="#4d88ff" />
+                <circle cx="17" cy="9" r="0.5" fill="white" />
+                <circle cx="14" cy="13" r="0.5" fill="white" />
               </svg>
-              <div className="absolute top-2 right-2.5 w-0.5 h-0.5 bg-white rounded-full opacity-70"></div>
-              <div className="absolute bottom-2.5 right-3 w-0.5 h-0.5 bg-white rounded-full opacity-70"></div>
             </div>
           </button>
         </div>
