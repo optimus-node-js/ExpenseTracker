@@ -76,35 +76,42 @@ const MobilePreviewSection = () => {
         </div>
         
         {/* Mobile mockups */}
-        <div className="relative h-[500px] md:h-[600px] flex items-center justify-center order-1 lg:order-2 animate-fade-in">
-          {/* Main phone mockup */}
-          <div className="relative w-[250px] h-[500px] border-8 border-background rounded-[32px] shadow-xl bg-card overflow-hidden z-20">
-            <div className="absolute inset-0 p-1">
-              <div className="absolute top-0 inset-x-0 h-6 bg-background rounded-t-xl flex justify-center items-center">
-                <div className="w-20 h-4 bg-slate-800 rounded-full"></div>
-              </div>
-              <div className="rounded-2xl overflow-hidden h-full w-full pt-6">
-                <img 
-                  src="https://placehold.co/250x500/0066CC/FFFFFF?text=RupeeTally+App" 
-                  alt="RupeeTally Mobile App"
-                  className="h-full w-full object-cover"
-                />
+        <div className="relative h-[500px] md:h-[600px] w-full flex justify-center items-center order-1 lg:order-2 animate-fade-in">
+          {/* Container to prevent overflow */}
+          <div className="relative w-full h-full flex justify-center items-center">
+            {/* Main phone mockup */}
+            <div className="relative w-[200px] sm:w-[250px] h-[400px] sm:h-[500px] border-6 sm:border-8 border-background rounded-[28px] sm:rounded-[32px] shadow-xl bg-card overflow-hidden z-20">
+              <div className="absolute inset-0 p-1">
+                <div className="absolute top-0 inset-x-0 h-6 bg-background rounded-t-xl flex justify-center items-center">
+                  <div className="w-16 sm:w-20 h-3 sm:h-4 bg-slate-800 rounded-full"></div>
+                </div>
+                <div className="rounded-2xl overflow-hidden h-full w-full pt-6">
+                  <div className="h-full w-full bg-primary flex items-center justify-center text-white text-center p-4">
+                    <div className="space-y-4">
+                      <div className="text-xl font-bold">RupeeTally App</div>
+                      <div className="text-sm opacity-80">Track your expenses on the go</div>
+                      <div className="py-2 px-4 bg-white/20 rounded-lg mx-auto text-sm">Expense Tracker</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          
-          {/* Secondary phone mockup (slightly behind) */}
-          <div className="absolute w-[250px] h-[500px] border-8 border-background rounded-[32px] shadow-xl bg-card overflow-hidden z-10 -right-10 lg:-right-20 bottom-16 opacity-75 rotate-6">
-            <div className="absolute inset-0 p-1">
-              <div className="absolute top-0 inset-x-0 h-6 bg-background rounded-t-xl flex justify-center items-center">
-                <div className="w-20 h-4 bg-slate-800 rounded-full"></div>
-              </div>
-              <div className="rounded-2xl overflow-hidden h-full w-full pt-6">
-                <img 
-                  src="https://placehold.co/250x500/0066CC/FFFFFF?text=RupeeTally+Stats" 
-                  alt="RupeeTally Mobile Stats"
-                  className="h-full w-full object-cover"
-                />
+            
+            {/* Secondary phone mockup (slightly behind) */}
+            <div className="hidden sm:block absolute w-[200px] sm:w-[250px] h-[400px] sm:h-[500px] border-6 sm:border-8 border-background rounded-[28px] sm:rounded-[32px] shadow-xl bg-card overflow-hidden z-10 right-0 sm:-right-10 lg:-right-16 bottom-12 sm:bottom-16 opacity-75 rotate-6">
+              <div className="absolute inset-0 p-1">
+                <div className="absolute top-0 inset-x-0 h-6 bg-background rounded-t-xl flex justify-center items-center">
+                  <div className="w-16 sm:w-20 h-3 sm:h-4 bg-slate-800 rounded-full"></div>
+                </div>
+                <div className="rounded-2xl overflow-hidden h-full w-full pt-6">
+                  <div className="h-full w-full bg-blue-400 flex items-center justify-center text-white text-center p-4">
+                    <div className="space-y-4">
+                      <div className="text-xl font-bold">RupeeTally Stats</div>
+                      <div className="text-sm opacity-80">View your financial progress</div>
+                      <div className="py-2 px-4 bg-white/20 rounded-lg mx-auto text-sm">Financial Reports</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

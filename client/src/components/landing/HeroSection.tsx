@@ -62,7 +62,7 @@ const HeroSection = () => {
         </div>
 
         {/* Dashboard preview */}
-        <div className="relative lg:pl-10 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+        <div className="relative w-full lg:pl-10 animate-fade-in" style={{ animationDelay: "0.3s" }}>
           <div className="relative z-10 rounded-xl overflow-hidden shadow-2xl border bg-background animate-pulse-slow">
             <div className="w-full h-auto rounded-xl overflow-hidden">
               <div className="flex flex-col h-full">
@@ -84,7 +84,7 @@ const HeroSection = () => {
                 
                 {/* Dashboard content */}
                 <div className="bg-white dark:bg-slate-900 p-4 flex-1">
-                  <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                     <div className="bg-blue-50 dark:bg-slate-800 p-3 rounded-lg">
                       <p className="text-xs text-gray-500 dark:text-gray-400">Total Balance</p>
                       <p className="text-lg font-bold text-gray-800 dark:text-white">₹45,250</p>
@@ -117,7 +117,7 @@ const HeroSection = () => {
                     </div>
                   </div>
                   
-                  <div className="flex gap-4 mb-4">
+                  <div className="flex flex-col lg:flex-row gap-4 mb-4">
                     <div className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-3">
                       <div className="flex justify-between items-center mb-2">
                         <h3 className="text-sm font-medium">Expense Breakdown</h3>
@@ -140,7 +140,7 @@ const HeroSection = () => {
                           <div className="h-full bg-red-500 rounded-full" style={{ width: '5%' }}></div>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 text-xs">
                         <div className="flex items-center">
                           <span className="w-2 h-2 rounded-full bg-blue-500 mr-1"></span>
                           <span className="text-gray-600 dark:text-gray-300">Housing (35%)</span>
@@ -222,7 +222,7 @@ const HeroSection = () => {
           </div>
           
           {/* Floating cards */}
-          <div className="absolute top-[20%] -left-20 animate-fade-in-delayed p-3 rounded-xl shadow-lg border bg-background/90 backdrop-blur-sm" style={{ animationDelay: "0.6s", maxWidth: "220px" }}>
+          <div className="hidden md:block absolute top-[20%] md:left-0 lg:-left-10 xl:-left-20 animate-fade-in-delayed p-3 rounded-xl shadow-lg border bg-background/90 backdrop-blur-sm z-30" style={{ animationDelay: "0.6s", maxWidth: "220px" }}>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
