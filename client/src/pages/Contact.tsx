@@ -60,19 +60,19 @@ export default function Contact() {
       icon: <Mail className="h-6 w-6" />,
       title: 'Email Us',
       description: 'support@rupeetally.com',
-      details: 'We'll respond within 24 hours',
+      details: 'We will respond within 24 hours'
     },
     {
       icon: <Phone className="h-6 w-6" />,
       title: 'Call Us',
       description: '+91 88669 90123',
-      details: 'Monday-Friday, 9AM-6PM IST',
+      details: 'Monday-Friday, 9AM-6PM IST'
     },
     {
       icon: <MapPin className="h-6 w-6" />,
       title: 'Visit Us',
       description: 'Koramangala, Bangalore',
-      details: 'Karnataka, India 560034',
+      details: 'Karnataka, India 560034'
     },
   ];
 

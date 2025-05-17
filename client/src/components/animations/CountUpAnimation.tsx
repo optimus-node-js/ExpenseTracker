@@ -21,7 +21,7 @@ export default function CountUpAnimation({
   delay = 0,
 }: CountUpProps) {
   const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   const [hasAnimated, setHasAnimated] = useState(false);
 
@@ -56,7 +56,7 @@ export default function CountUpAnimation({
   }, [isInView, end, duration, hasAnimated, delay]);
 
   return (
-    <motion.div 
+    <motion.span 
       ref={ref}
       initial={{ opacity: 0, y: 20 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
@@ -64,6 +64,6 @@ export default function CountUpAnimation({
       className="font-bold"
     >
       {prefix}{formatNumber(count)}{suffix}
-    </motion.div>
+    </motion.span>
   );
 }

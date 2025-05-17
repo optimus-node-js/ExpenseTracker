@@ -83,9 +83,9 @@ const HowItWorksSection = () => {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="relative"
             >
-              {/* Connecting line between steps */}
+              {/* Connecting line between steps - positioned to not cut over text */}
               {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-16 left-full w-full h-0.5 bg-gradient-to-r from-primary/30 to-transparent z-0" style={{ width: 'calc(100% - 3rem)' }}></div>
+                <div className="hidden lg:block absolute top-24 left-full w-full h-0.5 bg-gradient-to-r from-primary/30 to-transparent z-0" style={{ width: 'calc(100% - 3rem)' }}></div>
               )}
               
               {/* Step number */}
@@ -108,88 +108,102 @@ const HowItWorksSection = () => {
           ))}
         </div>
         
-        {/* Stats/Testimonial section */}
-        <div className="mt-24 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="space-y-8"
-          >
-            <div className="grid grid-cols-2 gap-4 md:gap-8">
-              <motion.div 
-                whileHover={{ y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="p-6 rounded-xl border bg-card space-y-2 hover:shadow-md"
-              >
-                <p className="text-3xl md:text-4xl font-bold text-primary">
-                  <CountUpAnimation end={5000} suffix="+" />
-                </p>
-                <p className="text-muted-foreground">Active Users</p>
-              </motion.div>
-              
-              <motion.div 
-                whileHover={{ y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="p-6 rounded-xl border bg-card space-y-2 hover:shadow-md"
-              >
-                <p className="text-3xl md:text-4xl font-bold text-primary">
-                  <CountUpAnimation end={10} prefix="₹" suffix="Cr+" />
-                </p>
-                <p className="text-muted-foreground">Expenses Tracked</p>
-              </motion.div>
-              
-              <motion.div 
-                whileHover={{ y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="p-6 rounded-xl border bg-card space-y-2 hover:shadow-md"
-              >
-                <p className="text-3xl md:text-4xl font-bold text-primary">
-                  <CountUpAnimation end={15} suffix="%" />
-                </p>
-                <p className="text-muted-foreground">Avg. Savings Increase</p>
-              </motion.div>
-              
-              <motion.div 
-                whileHover={{ y: -5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="p-6 rounded-xl border bg-card space-y-2 hover:shadow-md"
-              >
-                <p className="text-3xl md:text-4xl font-bold text-primary">
-                  <CountUpAnimation end={12000} suffix="+" />
-                </p>
-                <p className="text-muted-foreground">Transactions Daily</p>
-              </motion.div>
-            </div>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            whileHover={{ scale: 1.02 }}
-            className="p-8 rounded-xl border bg-card shadow-sm hover:shadow"
-          >
-            <div className="flex flex-col space-y-4">
-              <div className="flex items-center space-x-2">
-                <span className="text-yellow-500">★★★★★</span>
-                <span className="text-muted-foreground">5.0 rating</span>
+        {/* Stats section - separate from testimonials */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-20"
+        >
+          <h3 className="text-2xl font-bold text-center mb-8">Trusted by thousands across India</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+            <motion.div 
+              whileHover={{ y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              className="p-6 rounded-xl border bg-card space-y-2 hover:shadow-md text-center"
+            >
+              <div className="text-3xl md:text-4xl font-bold text-primary">
+                <CountUpAnimation end={5000} suffix="+" />
               </div>
-              <blockquote className="text-xl md:text-2xl font-medium italic">
-                "{randomTestimonial.quote}"
-              </blockquote>
-              <div className="flex items-center mt-4">
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary-foreground"></div>
-                <div className="ml-3">
-                  <p className="font-medium">{randomTestimonial.name}</p>
-                  <p className="text-sm text-muted-foreground">{randomTestimonial.job}</p>
+              <p className="text-muted-foreground">Active Users</p>
+            </motion.div>
+            
+            <motion.div 
+              whileHover={{ y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              className="p-6 rounded-xl border bg-card space-y-2 hover:shadow-md text-center"
+            >
+              <div className="text-3xl md:text-4xl font-bold text-primary">
+                <CountUpAnimation end={10} prefix="₹" suffix="Cr+" />
+              </div>
+              <p className="text-muted-foreground">Expenses Tracked</p>
+            </motion.div>
+            
+            <motion.div 
+              whileHover={{ y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              className="p-6 rounded-xl border bg-card space-y-2 hover:shadow-md text-center"
+            >
+              <div className="text-3xl md:text-4xl font-bold text-primary">
+                <CountUpAnimation end={15} suffix="%" />
+              </div>
+              <p className="text-muted-foreground">Avg. Savings Increase</p>
+            </motion.div>
+            
+            <motion.div 
+              whileHover={{ y: -5 }}
+              transition={{ type: "spring", stiffness: 300 }}
+              className="p-6 rounded-xl border bg-card space-y-2 hover:shadow-md text-center"
+            >
+              <div className="text-3xl md:text-4xl font-bold text-primary">
+                <CountUpAnimation end={12000} suffix="+" />
+              </div>
+              <p className="text-muted-foreground">Transactions Daily</p>
+            </motion.div>
+          </div>
+        </motion.div>
+        
+        {/* Testimonials section - separate from stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="mt-16"
+        >
+          <h3 className="text-2xl font-bold text-center mb-8">What our users say</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+                className="p-6 rounded-xl border bg-card shadow-sm hover:shadow flex flex-col h-full"
+              >
+                <div className="flex flex-col flex-grow">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <span className="text-yellow-500">★★★★★</span>
+                    <span className="text-muted-foreground text-sm">5.0</span>
+                  </div>
+                  <blockquote className="text-base md:text-lg flex-grow italic">
+                    "{testimonial.quote}"
+                  </blockquote>
+                  <div className="flex items-center mt-4 pt-4 border-t">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary-foreground"></div>
+                    <div className="ml-3">
+                      <p className="font-medium">{testimonial.name}</p>
+                      <p className="text-sm text-muted-foreground">{testimonial.job}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </section>
   );
