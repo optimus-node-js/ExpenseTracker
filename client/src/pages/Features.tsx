@@ -14,6 +14,15 @@ import {
 } from "@/components/ui/card";
 
 export default function Features() {
+  // Get the query parameter for the tab
+  const getTabFromUrl = () => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('tab') || 'expense-tracking';
+    }
+    return 'expense-tracking';
+  };
+  
   // Scroll to top on page load
   useEffect(() => {
     window.scrollTo({
@@ -519,13 +528,19 @@ export default function Features() {
         </motion.div>
         
         {/* Features tabs */}
-        <Tabs defaultValue="expense-tracking" className="w-full max-w-5xl mx-auto">
+        <Tabs defaultValue={getTabFromUrl()} className="w-full max-w-5xl mx-auto">
           <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full mb-8">
             {features.map((feature) => (
               <TabsTrigger 
                 key={feature.id} 
                 value={feature.id}
                 className="flex flex-col items-center gap-2 py-4"
+                onClick={() => {
+                  // Update URL without full page refresh
+                  const url = new URL(window.location.href);
+                  url.searchParams.set('tab', feature.id);
+                  window.history.pushState({}, '', url);
+                }}
               >
                 {feature.icon}
                 <span className="text-xs md:text-sm">{feature.title}</span>

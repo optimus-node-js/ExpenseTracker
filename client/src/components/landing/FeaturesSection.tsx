@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'wouter';
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, CreditCard, PieChart, FileText, Users, LineChart } from "lucide-react";
 
@@ -6,26 +7,30 @@ const FeatureCard = ({
   icon, 
   title, 
   description, 
-  delay = 0 
+  delay = 0,
+  link
 }: { 
   icon: React.ReactNode; 
   title: string; 
   description: string; 
   delay?: number;
+  link: string;
 }) => {
   return (
-    <div 
-      className="group flex flex-col p-6 space-y-4 rounded-xl border bg-card shadow-sm transition-all duration-200 hover:shadow-md animate-fade-in"
-      style={{ animationDelay: `${delay}s` }}
-    >
-      <div className="p-2 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-        {icon}
+    <Link href={link}>
+      <div 
+        className="group flex flex-col p-6 space-y-4 rounded-xl border bg-card shadow-sm transition-all duration-200 hover:shadow-md animate-fade-in cursor-pointer"
+        style={{ animationDelay: `${delay}s` }}
+      >
+        <div className="p-2 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+          {icon}
+        </div>
+        <div>
+          <h3 className="text-xl font-semibold mb-2">{title}</h3>
+          <p className="text-muted-foreground">{description}</p>
+        </div>
       </div>
-      <div>
-        <h3 className="text-xl font-semibold mb-2">{title}</h3>
-        <p className="text-muted-foreground">{description}</p>
-      </div>
-    </div>
+    </Link>
   );
 };
 
@@ -34,32 +39,38 @@ const FeaturesSection = () => {
     {
       icon: <DollarSign className="h-6 w-6 text-primary" />,
       title: "Expense Tracking",
-      description: "Effortlessly track your daily expenses with custom categories and tags tailored for Indian financial needs."
+      description: "Effortlessly track your daily expenses with custom categories and tags tailored for Indian financial needs.",
+      link: "/features?tab=expense-tracking"
     },
     {
       icon: <CreditCard className="h-6 w-6 text-primary" />,
       title: "Budget Management",
-      description: "Create and monitor weekly or monthly budgets with smart alerts to keep your spending in check."
+      description: "Create and monitor weekly or monthly budgets with smart alerts to keep your spending in check.",
+      link: "/features?tab=budget-management"
     },
     {
       icon: <PieChart className="h-6 w-6 text-primary" />,
       title: "Visual Analytics",
-      description: "Understand your spending patterns with intuitive charts and graphs that reveal financial insights."
+      description: "Understand your spending patterns with intuitive charts and graphs that reveal financial insights.",
+      link: "/features?tab=visual-analytics"
     },
     {
       icon: <FileText className="h-6 w-6 text-primary" />,
       title: "Statement Import",
-      description: "Easily import bank statements and automatically categorize transactions for hassle-free tracking."
+      description: "Easily import bank statements and automatically categorize transactions for hassle-free tracking.",
+      link: "/features?tab=statement-import"
     },
     {
       icon: <Users className="h-6 w-6 text-primary" />,
       title: "Lending Tracker",
-      description: "Keep records of money lent or borrowed, with details on repayment schedules and outstanding amounts."
+      description: "Keep records of money lent or borrowed, with details on repayment schedules and outstanding amounts.",
+      link: "/features"
     },
     {
       icon: <LineChart className="h-6 w-6 text-primary" />,
       title: "Investment Tracking",
-      description: "Monitor your investments including SIPs, stocks, and gold with performance analysis and growth projections."
+      description: "Monitor your investments including SIPs, stocks, and gold with performance analysis and growth projections.",
+      link: "/features?tab=investment-tracking"
     },
   ];
 
@@ -88,6 +99,7 @@ const FeaturesSection = () => {
               title={feature.title}
               description={feature.description}
               delay={0.1 * index}
+              link={feature.link}
             />
           ))}
         </div>
