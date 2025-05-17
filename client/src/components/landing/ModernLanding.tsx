@@ -90,64 +90,52 @@ export default function ModernLanding() {
             </Link>
           </div>
           
-          {/* Theme toggle button - Circular design */}
-          <button 
+          {/* Theme toggle button - Pill switch design */}
+          <div 
             onClick={toggleTheme}
-            className={`ml-2 relative h-10 w-10 rounded-full flex items-center justify-center focus:outline-none transition-colors duration-300 ${
-              theme === 'dark' ? 'bg-blue-600' : 'bg-amber-400'
-            }`}
+            className="ml-2 relative h-10 w-20 rounded-full bg-blue-500 p-1 cursor-pointer shadow-lg flex items-center transition-all duration-500 ease-in-out"
             aria-label="Toggle theme"
           >
-            {/* Sun Icon (light mode) */}
-            <div 
-              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
-                theme === 'dark' ? 'opacity-0' : 'opacity-100'
-              }`}
-            >
-              <Sun className="h-5 w-5 text-white" />
-              
-              {/* Sun rays */}
-              <div className="absolute inset-0 overflow-hidden rounded-full">
-                {[...Array(8)].map((_, i) => (
-                  <div
-                    key={`ray-${i}`}
-                    className="absolute h-0.5 bg-yellow-100 origin-center"
-                    style={{
-                      left: "50%",
-                      top: "50%",
-                      width: "40%",
-                      transform: `rotate(${i * 45}deg) translateX(50%)`,
-                      opacity: 0.7
-                    }}
-                  />
-                ))}
-              </div>
+            {/* Toggle background */}
+            <div className={`absolute inset-0 rounded-full transition-colors duration-500 ${
+              theme === 'dark' ? 'bg-blue-700' : 'bg-blue-500'
+            }`}></div>
+            
+            {/* Sun side */}
+            <div className={`h-8 w-8 rounded-full bg-amber-400 flex items-center justify-center z-10 transition-all duration-500 ease-in-out ${
+              theme === 'dark' ? 'opacity-50' : 'opacity-100'
+            }`}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-5 h-5">
+                <circle cx="12" cy="12" r="5" />
+                <line x1="12" y1="1" x2="12" y2="3" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                <line x1="12" y1="21" x2="12" y2="23" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                <line x1="1" y1="12" x2="3" y2="12" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                <line x1="21" y1="12" x2="23" y2="12" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              </svg>
             </div>
             
-            {/* Moon Icon (dark mode) */}
+            {/* Slider */}
             <div 
-              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
-                theme === 'dark' ? 'opacity-100' : 'opacity-0'
+              className={`absolute top-1 h-8 w-8 bg-white rounded-full shadow-md transform transition-transform duration-500 ease-in-out ${
+                theme === 'dark' ? 'translate-x-10' : 'translate-x-0'
               }`}
-            >
-              <Moon className="h-5 w-5 text-white" />
-              
-              {/* Stars */}
-              <div className="absolute inset-0 overflow-hidden rounded-full">
-                {[...Array(4)].map((_, i) => (
-                  <div
-                    key={`star-${i}`}
-                    className="absolute w-1 h-1 bg-white rounded-full"
-                    style={{
-                      top: `${15 + (i * 18)}%`,
-                      left: `${15 + (i * 18)}%`,
-                      opacity: 0.7
-                    }}
-                  />
-                ))}
-              </div>
+            ></div>
+            
+            {/* Moon side */}
+            <div className={`h-8 w-8 rounded-full bg-blue-700 ml-auto flex items-center justify-center z-10 transition-all duration-500 ease-in-out ${
+              theme === 'dark' ? 'opacity-100' : 'opacity-50'
+            }`}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-5 h-5">
+                <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z" />
+              </svg>
+              <div className="absolute top-1 right-1 w-1 h-1 bg-white rounded-full opacity-70"></div>
+              <div className="absolute bottom-2 left-2 w-1 h-1 bg-white rounded-full opacity-70"></div>
             </div>
-          </button>
+          </div>
         </div>
       </header>
 
