@@ -6,7 +6,6 @@ import { Sun, Moon } from "lucide-react";
 import HeroSection from './HeroSection';
 import FeaturesSection from './FeaturesSection';
 import HowItWorksSection from './HowItWorksSection';
-import MobilePreviewSection from './MobilePreviewSection';
 import FAQSection from './FAQSection';
 import CTASection from './CTASection';
 import Footer from './Footer';
@@ -111,7 +110,6 @@ export default function ModernLanding() {
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />
-      <MobilePreviewSection />
       <FAQSection />
       <CTASection />
       <Footer />
