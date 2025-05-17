@@ -296,9 +296,9 @@ export default function Documentation() {
                 RupeeTally can automatically categorize your transactions based on rules:
               </p>
               <ol className="list-decimal pl-5 space-y-2">
-                <li>Go to "Settings" > "Auto-Categorization"</li>
+                <li>Go to "Settings" and then "Auto-Categorization"</li>
                 <li>Click "Add New Rule"</li>
-                <li>Set conditions (e.g., description contains "Swiggy" → category "Dining Out")</li>
+                <li>Set conditions (e.g., description contains "Swiggy" - category "Dining Out")</li>
                 <li>Save your rule</li>
               </ol>
               <p className="text-sm text-muted-foreground">
@@ -361,7 +361,7 @@ export default function Documentation() {
               <div className="bg-primary/5 p-4 rounded-md">
                 <h4 className="font-medium mb-2">Pro Tip</h4>
                 <p className="text-sm">
-                  You can create tag-based reports to analyze spending patterns for specific tags. Go to "Reports" > 
+                  You can create tag-based reports to analyze spending patterns for specific tags. Go to "Reports" and then 
                   "Custom Report" and select tags as a grouping dimension.
                 </p>
               </div>
@@ -496,7 +496,7 @@ export default function Documentation() {
                 Set up notifications to stay informed about your budget status:
               </p>
               <ol className="list-decimal pl-5 space-y-2">
-                <li>Go to "Settings" > "Notifications"</li>
+                <li>Go to "Settings" and then "Notifications"</li>
                 <li>Enable "Budget Alerts"</li>
                 <li>
                   Configure alert thresholds (e.g., notify when you've spent 75% of a budget, 
@@ -709,7 +709,7 @@ export default function Documentation() {
                 <h4 className="font-medium mb-2">SIP Reminders</h4>
                 <p className="text-sm">
                   RupeeTally can send you notifications before each SIP due date to ensure you have sufficient 
-                  funds in your bank account. Enable this feature in Settings > Notifications > Investment Alerts.
+                  funds in your bank account. Enable this feature in Settings, then Notifications, then Investment Alerts.
                 </p>
               </div>
             </div>
