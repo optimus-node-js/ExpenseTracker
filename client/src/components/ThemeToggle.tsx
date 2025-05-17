@@ -12,99 +12,118 @@ export function ThemeToggle() {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={toggleTheme}
-      className={cn(
-        "relative w-12 h-6 rounded-full px-1 transition-colors duration-300 ease-in-out focus:outline-none", 
-        isDark 
-          ? "bg-gradient-to-r from-indigo-600 via-blue-500 to-purple-600" 
-          : "bg-gradient-to-r from-orange-300 via-amber-400 to-yellow-300"
-      )}
+      className="relative h-10 w-10 rounded-full flex items-center justify-center focus:outline-none"
       aria-label="Toggle theme"
     >
+      {/* Animated Background Circle */}
       <motion.div 
         className={cn(
-          "absolute top-1 w-4 h-4 rounded-full shadow-lg flex items-center justify-center",
-          isDark ? "bg-slate-900" : "bg-white"
+          "absolute w-full h-full rounded-full",
+          isDark ? "bg-blue-600" : "bg-amber-400"
         )}
+        initial={false}
         animate={{ 
-          x: isDark ? 24 : 0,
-          rotate: isDark ? 360 : 0,
+          scale: [1, 1.1, 1],
         }}
         transition={{ 
-          type: "spring", 
-          stiffness: 400, 
-          damping: 20,
-          duration: 0.3
+          duration: 0.5,
+          type: "spring",
+          stiffness: 200
+        }}
+      />
+      
+      {/* Sun Icon */}
+      <motion.div
+        className="absolute"
+        initial={false}
+        animate={{ 
+          opacity: isDark ? 0 : 1,
+          rotate: isDark ? 90 : 0,
+          scale: isDark ? 0 : 1
+        }}
+        transition={{ 
+          duration: 0.5,
+          type: "spring",
+          stiffness: 100
         }}
       >
         <motion.div
-          initial={false}
-          animate={{ 
-            opacity: isDark ? 0 : 1,
-            scale: isDark ? 0 : 1
-          }}
-          transition={{ duration: 0.2 }}
+          animate={{ rotate: [0, 360] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
         >
-          <Sun className="h-3 w-3 text-amber-500" />
-        </motion.div>
-        <motion.div
-          initial={false}
-          animate={{ 
-            opacity: isDark ? 1 : 0,
-            scale: isDark ? 1 : 0 
-          }}
-          transition={{ duration: 0.2 }}
-          className="absolute"
-        >
-          <Moon className="h-3 w-3 text-blue-300" />
+          <Sun className="h-5 w-5 text-white" />
         </motion.div>
       </motion.div>
       
-      {/* Stars/Sun rays animation */}
-      {isDark ? (
+      {/* Moon Icon */}
+      <motion.div
+        className="absolute"
+        initial={false}
+        animate={{ 
+          opacity: isDark ? 1 : 0,
+          rotate: isDark ? 0 : -90,
+          scale: isDark ? 1 : 0
+        }}
+        transition={{ 
+          duration: 0.5,
+          type: "spring",
+          stiffness: 100
+        }}
+      >
+        <Moon className="h-5 w-5 text-white" />
+      </motion.div>
+      
+      {/* Stars Animation (only in dark mode) */}
+      {isDark && (
         <div className="absolute inset-0 overflow-hidden rounded-full">
-          {[...Array(5)].map((_, i) => (
+          {[...Array(4)].map((_, i) => (
             <motion.div
               key={`star-${i}`}
-              className="absolute w-1 h-1 bg-blue-200 rounded-full"
+              className="absolute w-1 h-1 bg-white rounded-full"
               initial={{ opacity: 0 }}
               animate={{ 
                 opacity: [0, 1, 0],
                 scale: [0.5, 1, 0.5],
-                x: Math.random() * 40,
-                y: Math.random() * 6 
+              }}
+              style={{
+                top: `${15 + (i * 18)}%`,
+                left: `${15 + (i * 18)}%`,
               }}
               transition={{
                 duration: 1.5,
                 repeat: Infinity,
                 repeatType: "loop",
-                delay: i * 0.3,
+                delay: i * 0.4,
                 ease: "easeInOut"
               }}
             />
           ))}
         </div>
-      ) : (
+      )}
+      
+      {/* Sun Rays Animation (only in light mode) */}
+      {!isDark && (
         <div className="absolute inset-0 overflow-hidden rounded-full">
-          {[...Array(5)].map((_, i) => (
+          {[...Array(8)].map((_, i) => (
             <motion.div
               key={`ray-${i}`}
-              className="absolute h-0.5 bg-yellow-200 origin-left"
+              className="absolute h-0.5 bg-yellow-100 origin-center"
               style={{
-                left: "25%",
+                left: "50%",
                 top: "50%",
-                width: "30%",
-                rotate: i * 72
+                width: "40%",
+                transform: `rotate(${i * 45}deg) translateX(50%)`,
               }}
-              initial={{ opacity: 0, scaleX: 0 }}
+              initial={{ opacity: 0, scaleX: 0.5 }}
               animate={{ 
-                opacity: [0, 1, 0],
-                scaleX: [0.5, 1, 0.5],
+                opacity: [0.3, 1, 0.3],
+                scaleX: [0.7, 1, 0.7],
               }}
               transition={{
                 duration: 2,
                 repeat: Infinity,
                 repeatType: "loop",
-                delay: i * 0.2,
+                delay: i * 0.1,
                 ease: "easeInOut"
               }}
             />
