@@ -34,6 +34,7 @@ import Documentation from "@/pages/Documentation";
 import About from "@/pages/About";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import Terms from "@/pages/Terms";
+import ScrollToTop from "@/components/ScrollToTop";
 
 // Protected route component
 function ProtectedRoute({ component: Component, ...rest }: { component: React.ComponentType<any>, path: string }) {
@@ -99,6 +100,7 @@ function Router() {
       <Route path="/careers" component={Careers} />
       <Route path="/api-docs" component={ApiDocs} />
       <Route path="/guides" component={Guides} />
+      <Route path="/guides/:id" component={GuideDetails} />
       <Route path="/documentation" component={Documentation} />
       <Route path="/about" component={About} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
@@ -174,6 +176,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
+        <ScrollToTop />
         <Router />
       </TooltipProvider>
     </QueryClientProvider>
