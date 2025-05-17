@@ -32,19 +32,31 @@ export function ThemeProvider({
 
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
+    
+    // Add transition class for smooth theme switching
+    root.style.transition = "background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease";
+    
+    // Small delay to allow transitions to work properly
+    const applyTheme = () => {
+      root.classList.remove("light", "dark");
 
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light";
+      if (theme === "system") {
+        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+          .matches
+          ? "dark"
+          : "light";
 
-      root.classList.add(systemTheme);
-      return;
-    }
+        root.classList.add(systemTheme);
+        return;
+      }
 
-    root.classList.add(theme);
+      root.classList.add(theme);
+    };
+
+    // Use a short timeout to ensure the transition works
+    const timeout = setTimeout(applyTheme, 1);
+    
+    return () => clearTimeout(timeout);
   }, [theme]);
 
   const value = {
