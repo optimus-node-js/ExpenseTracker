@@ -110,7 +110,7 @@ const Footer = () => {
           style={{ animationDelay: "0.8s" }}
         >
           <p className="text-sm text-muted-foreground">
-            &copy; {currentYear} FinTrackr. All rights reserved.
+            &copy; {currentYear} RupeeTally. All rights reserved.
           </p>
           
           <div className="flex gap-6 mt-4 md:mt-0">

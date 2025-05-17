@@ -21,7 +21,7 @@ const MobilePreviewSection = () => {
               Manage your finances on the go
             </h2>
             <p className="text-muted-foreground text-lg max-w-[600px]">
-              FinTrackr works beautifully on mobile devices, allowing you to track expenses, check budgets, and analyze your finances wherever you are.
+              RupeeTally works beautifully on mobile devices, allowing you to track expenses, check budgets, and analyze your finances wherever you are.
             </p>
           </div>
           

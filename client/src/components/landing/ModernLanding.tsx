@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { BarChart2 } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 
 import HeroSection from './HeroSection';
 import FeaturesSection from './FeaturesSection';
@@ -13,6 +13,28 @@ import Footer from './Footer';
 
 export default function ModernLanding() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    // Check if theme is stored in localStorage
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') || 'light';
+    }
+    return 'light';
+  });
+  
+  // Theme toggle function
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme', newTheme);
+      document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    }
+  };
+  
+  // Initialize theme on mount
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
   
   // Track scrolling for navbar styling
   useEffect(() => {
@@ -40,8 +62,8 @@ export default function ModernLanding() {
       >
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-2">
-            <BarChart2 className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">FinTrackr</span>
+            <span className="text-primary text-xl font-bold">₹</span>
+            <span className="text-xl font-bold">RupeeTally</span>
           </div>
           <nav className="hidden md:flex gap-6 items-center">
             <a href="#features" className="text-sm font-medium hover:text-primary transition-colors">
@@ -68,6 +90,20 @@ export default function ModernLanding() {
               <Button size="sm">Sign Up</Button>
             </Link>
           </div>
+          
+          {/* Theme toggle button */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleTheme}
+            className="ml-2"
+          >
+            {theme === 'dark' ? (
+              <SunIcon className="h-5 w-5" />
+            ) : (
+              <MoonIcon className="h-5 w-5" />
+            )}
+          </Button>
         </div>
       </header>
 

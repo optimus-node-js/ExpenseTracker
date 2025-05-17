@@ -96,7 +96,7 @@ const HowItWorksSection = () => {
                 <span className="text-muted-foreground">5.0 rating</span>
               </div>
               <blockquote className="text-xl md:text-2xl font-medium italic">
-                "FinTrackr has completely changed how I manage my finances. I've been able to save 20% more each month!"
+                "RupeeTally has completely changed how I manage my finances. I've been able to save 20% more each month!"
               </blockquote>
               <div className="flex items-center mt-4">
                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary-foreground"></div>

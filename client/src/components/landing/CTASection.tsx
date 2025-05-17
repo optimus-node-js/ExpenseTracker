@@ -16,7 +16,7 @@ const CTASection = () => {
           Ready to take control of your finances?
         </h2>
         <p className="text-muted-foreground text-lg md:text-xl max-w-[800px] mx-auto">
-          Join thousands of users who are already tracking, managing, and growing their finances with FinTrackr.
+          Join thousands of users who are already tracking, managing, and growing their finances with RupeeTally.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
