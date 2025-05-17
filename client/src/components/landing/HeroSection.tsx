@@ -221,8 +221,8 @@ const HeroSection = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
           </div>
           
-          {/* Floating cards */}
-          <div className="hidden md:block absolute -top-8 right-10 lg:right-20 animate-fade-in-delayed p-3 rounded-xl shadow-lg border bg-background/90 backdrop-blur-sm z-30" style={{ animationDelay: "0.6s", maxWidth: "220px" }}>
+          {/* Positioned notification cards */}
+          <div className="hidden md:block absolute bottom-10 right-10 animate-fade-in-delayed p-3 rounded-xl shadow-lg border bg-background/90 backdrop-blur-sm z-30" style={{ animationDelay: "0.6s" }}>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -236,9 +236,26 @@ const HeroSection = () => {
             </div>
           </div>
           
-          <div className="absolute bottom-[15%] -right-5 animate-fade-in-delayed p-3 rounded-xl shadow-lg border bg-background/90 backdrop-blur-sm" style={{ animationDelay: "0.9s", maxWidth: "220px" }}>
+          <div className="hidden md:block absolute bottom-36 right-10 animate-fade-in-delayed p-3 rounded-xl shadow-lg border bg-background/90 backdrop-blur-sm z-30" style={{ animationDelay: "0.8s" }}>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-medium">Monthly growth</p>
+                <p className="text-lg font-bold text-green-500">+12.5%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default HeroSection;
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
