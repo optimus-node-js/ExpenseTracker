@@ -559,16 +559,17 @@ export default function Features() {
         
         {/* Features tabs */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="max-w-5xl mx-auto">
-          <div className="border-b mb-8">
-            <TabsList className="flex w-full justify-between bg-transparent p-0">
+          <div className="mb-8">
+            <TabsList className="flex w-full justify-between bg-transparent p-0 border-0">
               {features.map((feature) => (
                 <TabsTrigger 
                   key={feature.id} 
                   value={feature.id}
-                  className="flex flex-col items-center gap-2 py-4 px-2 border-b-2 border-transparent data-[state=active]:border-b-primary data-[state=active]:text-primary rounded-none bg-transparent text-foreground hover:text-primary"
+                  className="flex flex-col items-center gap-2 py-4 px-2 border-0 relative data-[state=active]:text-primary data-[state=active]:bg-transparent rounded-none bg-transparent"
                 >
                   {feature.icon}
                   <span className="text-xs md:text-sm font-medium">{feature.title}</span>
+                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-transparent data-[state=active]:bg-primary transition-colors" data-state={activeTab === feature.id ? 'active' : 'inactive'}></div>
                 </TabsTrigger>
               ))}
             </TabsList>
