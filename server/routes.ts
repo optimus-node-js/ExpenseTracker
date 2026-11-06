@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { Express, Request, Response } from "express";
 import type { ParamsDictionary } from "express-serve-static-core";
 import { createServer, type Server } from "http";
@@ -93,7 +94,8 @@ const getIdParam = (req: TypedRequestParams<{ id: string }>): number => {
 
 const validateSchema = (value: unknown) => {
   try {
-    insertTransactionSchema.parse(value);
+    // userId comes from the session and dates arrive as JSON strings.
+    insertTransactionSchema.omit({ userId: true }).extend({ date: z.coerce.date() }).parse(value);
     return true;
   } catch (error: unknown) {
     if (error instanceof ZodError) {
@@ -177,6 +179,12 @@ const getMonthlyTrend = (transactions: Transaction[]) => {
   return monthlyTrend;
 };
 
+// The signed-in user for this request (from the session), or undefined.
+async function currentUser(req: { session?: any }) {
+  const id = (req.session as any)?.userId;
+  return id ? storage.getUser(id) : undefined;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
   app.get("/api/health", (_req: Request, res: Response) => {
@@ -186,10 +194,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ===== Transactions Endpoints =====
 
   // Get all transactions
-  app.get("/api/transactions", isAuthenticated, async (_req: Request, res: Response) => {
+  app.get("/api/transactions", isAuthenticated, async (req: Request, res: Response) => {
     try {
       // Get the active user
-      const user = await storage.getUserByUsername("user");
+      const user = await currentUser(req);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -410,7 +418,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
         
         const budget = await storage.createBudget({
-          userId: 1, // Using userId 1 for now
+          userId: req.session.userId as number,
           ...req.body,
           startDate,
           endDate,
@@ -458,7 +466,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         const budget = await storage.updateBudget(id, {
           ...req.body,
-          userId: 1, // Using userId 1 for now
+          userId: req.session.userId as number,
           startDate: existingBudget.startDate,
           endDate: existingBudget.endDate,
         });
@@ -505,7 +513,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/dashboard", async (req, res) => {
     try {
       // Get the active user
-      const user = await storage.getUserByUsername("user");
+      const user = await currentUser(req);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -576,7 +584,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/analytics", async (req, res) => {
     try {
       // Get the active user
-      const user = await storage.getUserByUsername("user");
+      const user = await currentUser(req);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -619,7 +627,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const password = req.body.password;
         
         // Get the active user
-        const user = await storage.getUserByUsername("user");
+        const user = await currentUser(req);
         if (!user) {
           return res.status(404).json({ message: "User not found" });
         }
@@ -719,7 +727,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Validate with zod schema
         const validatedData = insertSubscriptionSchema.parse({
           ...req.body,
-          userId: 1, // Using userId 1 for now
+          userId: req.session.userId as number,
           startDate: new Date(req.body.startDate),
           nextBillingDate: new Date(req.body.nextBillingDate)
         });
@@ -768,7 +776,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const updateData = {
           ...existingSubscription,
           ...req.body,
-          userId: 1, // Using userId 1 for now
+          userId: req.session.userId as number,
           id: undefined, // Remove id as it's not needed for update
           createdAt: undefined // Remove createdAt as it's not needed for update
         };
@@ -833,7 +841,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/loans", async (req: Request, res: Response) => {
     try {
       // Get the active user
-      const user = await storage.getUserByUsername("user");
+      const user = await currentUser(req);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -892,7 +900,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         // Get the active user
-        const user = await storage.getUserByUsername("user");
+        const user = await currentUser(req);
         if (!user) {
           return res.status(404).json({ message: "User not found" });
         }
@@ -1008,7 +1016,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/income-sources", async (req: Request, res: Response) => {
     try {
       // Get the active user
-      const user = await storage.getUserByUsername("user");
+      const user = await currentUser(req);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1042,7 +1050,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         // Get the active user
-        const user = await storage.getUserByUsername("user");
+        const user = await currentUser(req);
         if (!user) {
           return res.status(404).json({ message: "User not found" });
         }
@@ -1071,7 +1079,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/investments", async (req: Request, res: Response) => {
     try {
       // Get the active user
-      const user = await storage.getUserByUsername("user");
+      const user = await currentUser(req);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1105,7 +1113,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         // Get the active user
-        const user = await storage.getUserByUsername("user");
+        const user = await currentUser(req);
         if (!user) {
           return res.status(404).json({ message: "User not found" });
         }
@@ -1134,7 +1142,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/sips", async (req: Request, res: Response) => {
     try {
       // Get the active user
-      const user = await storage.getUserByUsername("user");
+      const user = await currentUser(req);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -1168,7 +1176,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         // Get the active user
-        const user = await storage.getUserByUsername("user");
+        const user = await currentUser(req);
         if (!user) {
           return res.status(404).json({ message: "User not found" });
         }
@@ -1377,7 +1385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         // Get the user by username since we're not using sessions yet
-        const user = await storage.getUserByUsername("user");
+        const user = await currentUser(req);
         
         if (!user) {
           return res.status(404).json({ message: "User not found" });
@@ -1415,7 +1423,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         // Get the user by username since we're not using sessions yet
-        const user = await storage.getUserByUsername("user");
+        const user = await currentUser(req);
         
         if (!user) {
           return res.status(404).json({ message: "User not found" });

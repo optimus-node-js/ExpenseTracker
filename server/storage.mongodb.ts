@@ -68,6 +68,13 @@ function ensureBudgetPeriod(period: string): "weekly" | "monthly" {
 }
 
 export class MongoDBStorage implements IStorage {
+  // Resolve the Mongo user document for the app's numeric user id (scoped to the signed-in user).
+  private async userDoc(userId: number | undefined | null) {
+    if (userId === undefined || userId === null) return null;
+    const users = await UserModel.find({}, { _id: 1 });
+    const match = users.find((u) => u && u._id && mongoIdToNumericId(u as Document) === Number(userId));
+    return match ? UserModel.findById(match._id) : null;
+  }
   // User methods
   async getUser(id: number): Promise<User | undefined> {
     try {
@@ -195,7 +202,7 @@ export class MongoDBStorage implements IStorage {
   
   async getAllTransactions(userId: number): Promise<Transaction[]> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(userId);
       if (!user) return [];
       
       const transactions = await TransactionModel.find({ userId: user._id });
@@ -354,7 +361,7 @@ export class MongoDBStorage implements IStorage {
   
   async getAllBudgets(userId: number): Promise<Budget[]> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(userId);
       if (!user) return [];
       
       const budgets = await BudgetModel.find({ userId: user._id });
@@ -377,7 +384,7 @@ export class MongoDBStorage implements IStorage {
   
   async createBudget(budget: InsertBudget): Promise<Budget> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(budget.userId);
       if (!user) {
         throw new Error('User not found');
       }
@@ -483,7 +490,7 @@ export class MongoDBStorage implements IStorage {
   
   async getAllBankStatements(userId: number): Promise<BankStatement[]> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(userId);
       if (!user) return [];
       
       const statements = await BankStatementModel.find({ userId: user._id });
@@ -511,7 +518,7 @@ export class MongoDBStorage implements IStorage {
   
   async createBankStatement(statement: InsertBankStatement): Promise<BankStatement> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(statement.userId);
       if (!user) {
         throw new Error('User not found');
       }
@@ -562,7 +569,7 @@ export class MongoDBStorage implements IStorage {
       const transactionDate = toRequiredDate(transaction.date);
       
       // Find the user by numeric ID
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(transaction.userId);
       if (!user) return undefined;
       
       // Look for a transaction with the same amount, date, and description
@@ -856,7 +863,7 @@ export class MongoDBStorage implements IStorage {
 
   async getAllLoans(userId: number): Promise<Loan[]> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(userId);
       if (!user) return [];
       
       const loans = await LoanModel.find({ userId: user._id });
@@ -882,7 +889,7 @@ export class MongoDBStorage implements IStorage {
 
   async createLoan(loan: InsertLoan): Promise<Loan> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(loan.userId);
       if (!user) {
         throw new Error('User not found');
       }
@@ -995,7 +1002,7 @@ export class MongoDBStorage implements IStorage {
 
   async getAllIncomeSources(userId: number): Promise<IncomeSource[]> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(userId);
       if (!user) return [];
       
       const sources = await IncomeSourceModel.find({ userId: user._id });
@@ -1020,7 +1027,7 @@ export class MongoDBStorage implements IStorage {
 
   async createIncomeSource(incomeSource: InsertIncomeSource): Promise<IncomeSource> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(incomeSource.userId);
       if (!user) {
         throw new Error('User not found');
       }
@@ -1132,7 +1139,7 @@ export class MongoDBStorage implements IStorage {
 
   async getAllInvestments(userId: number): Promise<Investment[]> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(userId);
       if (!user) return [];
       
       const investments = await InvestmentModel.find({ userId: user._id });
@@ -1160,7 +1167,7 @@ export class MongoDBStorage implements IStorage {
 
   async createInvestment(investment: InsertInvestment): Promise<Investment> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(investment.userId);
       if (!user) {
         throw new Error('User not found');
       }
@@ -1284,7 +1291,7 @@ export class MongoDBStorage implements IStorage {
 
   async getAllSips(userId: number): Promise<Sip[]> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(userId);
       if (!user) return [];
       
       const sips = await SipModel.find({ userId: user._id });
@@ -1312,7 +1319,7 @@ export class MongoDBStorage implements IStorage {
 
   async createSip(sip: InsertSip): Promise<Sip> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      const user = await this.userDoc(sip.userId);
       if (!user) {
         throw new Error('User not found');
       }

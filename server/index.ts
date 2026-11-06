@@ -1,116 +1,23 @@
-import 'dotenv/config';
-import express, { type Request, Response, NextFunction } from "express";
-import session from "express-session";
-import { v4 as uuidv4 } from "uuid";
-import { registerRoutes } from "./routes";
-import { connectToMongoDB } from "./db/mongodb";
-import cors from "cors";
+import express from "express";
+import { createApp } from "./app";
 import { setupVite, log } from "./vite";
 
-const app = express();
-
-// Enable CORS
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
-  credentials: true
-}));
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-// Set up session middleware
-app.use(
-  session({
-    genid: () => uuidv4(),
-    secret: process.env.SESSION_SECRET || 'finance-tracker-secret-key',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      secure: process.env.NODE_ENV === 'production',
-      httpOnly: true,
-    }
-  })
-);
-
-app.use((req, res, next) => {
-  const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
-  res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      console.log(logLine);
-    }
-  });
-
-  next();
-});
-
+// Local / long-running server. On Vercel the API runs through api/index.ts instead.
 (async () => {
-  // Connect to MongoDB
-  try {
-    await connectToMongoDB();
-    console.log('MongoDB connection established');
-  } catch (error) {
-    console.log('Failed to connect to MongoDB, falling back to in-memory storage');
-    console.error('MongoDB connection error:', error);
-  }
-  
-  const server = await registerRoutes(app);
+  const { app, server } = await createApp();
 
-  // Set up Vite middleware for the development server
   if (process.env.NODE_ENV !== 'production') {
-    // Setup Vite dev server
     await setupVite(app, server);
     log('Vite middleware initialized in development mode');
   } else {
-    // Serve static files in production
-    app.use(express.static('dist'));
-    app.get('*', (req, res) => {
-      res.sendFile('index.html', { root: 'dist' });
-    });
+    app.use(express.static('dist/public'));
+    app.get('*', (_req, res) => res.sendFile('index.html', { root: 'dist/public' }));
   }
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    res.status(status).json({ message });
-    throw err;
-  });
-
-  // Handle 404 for API routes
-  app.use('/api/*', (req, res) => {
-    res.status(404).json({ message: `API endpoint not found: ${req.originalUrl}` });
-  });
-
-  // Start the server
   const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen(port, 'localhost', () => {
-    console.log(`API server is running on http://localhost:${port}`);
-  }).on('error', (error: Error) => {
-    if ((error as any).code === 'EADDRINUSE') {
-      console.log(`Port ${port} is already in use. Please try a different port.`);
-    } else {
+  server.listen(port, () => console.log(`Server running on http://localhost:${port}`))
+    .on('error', (error: Error) => {
       console.log('Failed to start server:', error.message);
-    }
-    process.exit(1);
-  });
+      process.exit(1);
+    });
 })();

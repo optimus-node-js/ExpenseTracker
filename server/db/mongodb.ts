@@ -1,41 +1,44 @@
 import mongoose from 'mongoose';
 
-// MongoDB connection string from environment variable with fallback
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://SupremeRahul:***REDACTED***@clusternse.wpf8cel.mongodb.net/ExpenseTracker';
+const MONGODB_URI = process.env.MONGODB_URI;
 
-// Configure Mongoose
 mongoose.set('strictQuery', false);
 
-// Connect to MongoDB
-export async function connectToMongoDB() {
-  try {
-    await mongoose.connect(MONGODB_URI);
-    console.log('Connected to MongoDB');
-    return true;
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
+let connecting: Promise<boolean> | null = null;
+
+// Connect once and reuse the connection (important for serverless, where instances are reused).
+export async function connectToMongoDB(): Promise<boolean> {
+  if (mongoose.connection.readyState === 1) return true;
+  if (!MONGODB_URI) {
+    console.error('MONGODB_URI is not set');
     return false;
   }
+  if (!connecting) {
+    connecting = mongoose
+      .connect(MONGODB_URI, { serverSelectionTimeoutMS: 10000 })
+      .then(() => {
+        console.log('Connected to MongoDB');
+        return true;
+      })
+      .catch((error) => {
+        console.error('MongoDB connection error:', error.message);
+        connecting = null;
+        return false;
+      });
+  }
+  return connecting;
 }
 
-// Disconnect from MongoDB (useful for testing or graceful shutdown)
 export async function disconnectFromMongoDB() {
-  try {
-    await mongoose.disconnect();
-    console.log('Disconnected from MongoDB');
-    return true;
-  } catch (error) {
-    console.error('MongoDB disconnection error:', error);
-    return false;
-  }
+  await mongoose.disconnect();
+  connecting = null;
+  return true;
 }
 
-// Check connection status
 export function isConnected(): boolean {
   return mongoose.connection.readyState === 1;
 }
 
-// Get connection instance
 export function getConnection() {
   return mongoose.connection;
 }
