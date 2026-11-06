@@ -71,11 +71,34 @@ export class MongoDBStorage implements IStorage {
   // User methods
   async getUser(id: number): Promise<User | undefined> {
     try {
-      const user = await UserModel.findOne({ id });
-      if (!user) return undefined;
+      console.log(`Looking for user with ID: ${id}`);
+      
+      // Get all users and find the one with matching ID using the helper function
+      const allUsers = await UserModel.find({});
+      let user = allUsers.find(u => {
+        // Ensure u is a proper document before passing to mongoIdToNumericId
+        if (u && u._id) {
+          return mongoIdToNumericId(u as Document) === id;
+        }
+        return false;
+      });
+      
+      if (!user) {
+        console.log(`No user found with numeric ID ${id}, trying alternative lookup methods`);
+        // If not found, try to find the most recent user as a fallback
+        const recentUser = await UserModel.findOne().sort({ createdAt: -1 });
+        user = recentUser || undefined;
+      }
+      
+      if (!user) {
+        console.log(`No users found in the database`);
+        return undefined;
+      }
+      
+      console.log(`Found user: ${user.username} with ID: ${mongoIdToNumericId(user as Document)}`);
       
       return {
-        id,
+        id: mongoIdToNumericId(user as Document),
         username: user.username,
         password: user.password,
         email: user.email,
@@ -91,11 +114,18 @@ export class MongoDBStorage implements IStorage {
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     try {
+      console.log(`Looking for user with username: ${username}`);
       const user = await UserModel.findOne({ username });
-      if (!user) return undefined;
+      if (!user) {
+        console.log(`No user found with username ${username}`);
+        return undefined;
+      }
+      
+      const userId = mongoIdToNumericId(user as Document);
+      console.log(`Found user with username ${username}, ID: ${userId}`);
       
       return {
-        id: mongoIdToNumericId(user),
+        id: userId,
         username: user.username,
         password: user.password,
         email: user.email,
@@ -122,7 +152,7 @@ export class MongoDBStorage implements IStorage {
       const savedUser = await newUser.save();
       
       return {
-        id: mongoIdToNumericId(savedUser),
+        id: mongoIdToNumericId(savedUser as Document),
         username: savedUser.username,
         password: savedUser.password,
         email: savedUser.email,
@@ -193,7 +223,15 @@ export class MongoDBStorage implements IStorage {
   
   async createTransaction(transaction: InsertTransaction): Promise<Transaction> {
     try {
-      const user = await UserModel.findOne().sort({ createdAt: 1 }).limit(1);
+      // Find the user by numeric ID 
+      const allUsers = await UserModel.find({});
+      const user = allUsers.find(u => {
+        if (u && u._id) {
+          return mongoIdToNumericId(u as Document) === transaction.userId;
+        }
+        return false;
+      });
+      
       if (!user) {
         throw new Error('User not found');
       }

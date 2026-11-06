@@ -90,14 +90,19 @@ export function TransactionForm() {
   async function onSubmit(data: TransactionFormValues) {
     setIsSubmitting(true);
     try {
-      // Convert amount to number
+      // Format data to match server expectations
       const submissionData = {
         ...data,
-        amount: Number(data.amount),
+        // Convert amount to string as expected by the server
+        amount: String(data.amount),
+        // Send date as is - it will be a Date object
+        date: data.date,
       };
 
+      console.log("Submitting transaction:", submissionData);
+      
       // Send data to the API
-      await apiRequest("POST", "/api/transactions", submissionData);
+      const response = await apiRequest("POST", "/api/transactions", submissionData);
 
       // Show success message
       toast({
@@ -111,11 +116,29 @@ export function TransactionForm() {
       // Invalidate transaction queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/transactions"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding transaction:", error);
+      
+      // Try to extract detailed error message if available
+      let errorMessage = "There was a problem adding your transaction.";
+      
+      if (error.response) {
+        try {
+          const errorData = error.response;
+          if (errorData.errors && errorData.errors.length > 0) {
+            errorMessage = errorData.errors[0].msg || errorMessage;
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (e) {
+          // Fallback to default error message
+          console.error("Error parsing error response:", e);
+        }
+      }
+      
       toast({
         title: "Error",
-        description: "There was a problem adding your transaction.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

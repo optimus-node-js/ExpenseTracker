@@ -4,7 +4,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { MainLayout } from "@/layouts/MainLayout";
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, useRef, Component, ErrorInfo } from "react";
+import { NotificationProvider } from "@/components/NotificationProvider";
 
 // Main app pages
 import Dashboard from "@/pages/Dashboard";
@@ -23,6 +24,7 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
+import Logout from "@/pages/Logout";
 import Contact from "@/pages/Contact";
 import FAQ from "@/pages/FAQ";
 import Blog from "@/pages/Blog";
@@ -41,31 +43,66 @@ import ScrollToTop from "@/components/ScrollToTop";
 // Protected route component
 function ProtectedRoute({ component: Component, ...rest }: { component: React.ComponentType<any>, path: string }) {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-  const [, setLocation] = useLocation();
+  const [, navigate] = useLocation();
+  const isAuthenticating = useRef(false);
 
   useEffect(() => {
     // Check if user is logged in
     const checkAuth = async () => {
       try {
+        if (isAuthenticating.current) return;
+        isAuthenticating.current = true;
+        
+        console.log("Checking authentication status");
+        // Check if we have a stored auth state
+        const storedAuthState = localStorage.getItem('isAuthenticated');
+        console.log("Stored auth state:", storedAuthState);
+        
+        // If not authenticated in localStorage, redirect immediately
+        if (!storedAuthState) {
+          console.log("No stored auth state, redirecting to login");
+          setIsLoggedIn(false);
+          navigate('/login');
+          isAuthenticating.current = false;
+          return;
+        }
+        
+        // Verify authentication with the server
+        console.log("Verifying authentication with server");
         const response = await fetch('/api/user/profile', {
           credentials: 'include'
         });
         
+        console.log("Auth verification response:", response.status);
+        
         if (response.ok) {
+          console.log("Authentication verified with server");
           setIsLoggedIn(true);
+          localStorage.setItem('isAuthenticated', 'true');
         } else {
+          console.log("Server rejected authentication, redirecting to login");
+          // Server says not authenticated, clear localStorage and redirect
           setIsLoggedIn(false);
-          setLocation('/login');
+          localStorage.removeItem('isAuthenticated');
+          navigate('/login');
         }
+        isAuthenticating.current = false;
       } catch (error) {
         console.error('Auth check error:', error);
         setIsLoggedIn(false);
-        setLocation('/login');
+        localStorage.removeItem('isAuthenticated');
+        navigate('/login');
+        isAuthenticating.current = false;
       }
     };
 
     checkAuth();
-  }, [setLocation]);
+    
+    // Clean up function
+    return () => {
+      isAuthenticating.current = false;
+    };
+  }, [navigate]);
 
   // Show loading state while checking auth
   if (isLoggedIn === null) {
@@ -88,13 +125,56 @@ function AppLayout({ children, withSidebar = false }: { children: ReactNode, wit
   return <>{children}</>;
 }
 
+// Error Boundary component to catch rendering errors
+class ErrorBoundary extends Component<{ children: ReactNode, fallback?: ReactNode }> {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("React ErrorBoundary caught an error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || (
+        <div className="p-4 m-4 bg-destructive/10 border border-destructive rounded-md">
+          <h2 className="text-xl font-bold text-destructive">Something went wrong</h2>
+          <p className="mt-2 text-muted-foreground">
+            The application encountered an error. Please try refreshing the page.
+          </p>
+          <button 
+            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md"
+            onClick={() => window.location.reload()}
+          >
+            Reload page
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 function Router() {
   return (
     <Switch>
       {/* Public routes */}
       <Route path="/" component={Landing} />
-      <Route path="/login" component={Login} />
-      <Route path="/signup" component={Signup} />
+      <Route path="/login">
+        <ErrorBoundary>
+          <Login />
+        </ErrorBoundary>
+      </Route>
+      <Route path="/signup">
+        <ErrorBoundary>
+          <Signup />
+        </ErrorBoundary>
+      </Route>
+      <Route path="/logout" component={Logout} />
       <Route path="/contact" component={Contact} />
       <Route path="/faq" component={FAQ} />
       <Route path="/blog" component={Blog} />
@@ -176,13 +256,17 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <ScrollToTop />
-        <Router />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <NotificationProvider>
+            <Toaster />
+            <ScrollToTop />
+            <Router />
+          </NotificationProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

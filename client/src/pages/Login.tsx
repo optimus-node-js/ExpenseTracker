@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { AuthNotificationWrapper } from "@/components/AuthNotificationWrapper";
 
 export default function Login() {
   return (
@@ -10,7 +11,9 @@ export default function Login() {
         Back to home
       </Link>
       
-      <LoginForm />
+      <AuthNotificationWrapper>
+        <LoginForm />
+      </AuthNotificationWrapper>
     </div>
   );
 }

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { Bell, User, ChevronDown, Settings, LogOut, HelpCircle } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useUser } from '@/hooks/use-user';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,11 +18,18 @@ import {
 
 export function DashboardHeader() {
   const [notifications] = useState(3); // Example notification count
-  const userName = "Raj Kumar"; // This would come from user context/state
+  const { data: user } = useUser();
+  const [, navigate] = useLocation();
+  
+  const userName = user?.fullName || "User";
   const userInitials = userName
     .split(' ')
     .map(name => name[0])
     .join('');
+
+  const handleLogout = () => {
+    navigate('/logout');
+  };
 
   return (
     <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 w-full border-b">
@@ -114,12 +122,10 @@ export function DashboardHeader() {
                 </Link>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <Link href="/logout">
-                <DropdownMenuItem className="cursor-pointer">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </Link>
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

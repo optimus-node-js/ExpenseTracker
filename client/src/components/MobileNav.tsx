@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { TransactionForm } from "@/components/TransactionForm";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/" },
+  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: DollarSign, label: "Transactions", href: "/transactions" },
   { icon: BarChart3, label: "Analytics", href: "/analytics" },
   { icon: CalendarClock, label: "Subscriptions", href: "/subscriptions" },
@@ -21,7 +21,12 @@ const navItems = [
 ];
 
 export function MobileNav() {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
+  
+  // Add a function to handle logout if needed
+  const handleLogout = () => {
+    navigate('/logout');
+  };
   
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t shadow-lg z-10">

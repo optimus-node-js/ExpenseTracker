@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/" },
+  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: DollarSign, label: "Transactions", href: "/transactions" },
   { icon: Wallet, label: "Income", href: "/income" },
   { icon: HandCoins, label: "Loans & Lending", href: "/loans" },

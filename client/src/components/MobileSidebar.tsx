@@ -17,7 +17,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/" },
+  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: DollarSign, label: "Transactions", href: "/transactions" },
   { icon: BarChart3, label: "Analytics", href: "/analytics" },
   { icon: CreditCard, label: "Budgets", href: "/budget" },

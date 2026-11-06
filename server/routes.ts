@@ -9,6 +9,7 @@ import { processStatementFile } from "./utils/transaction-parser";
 import { body, param, validationResult } from "express-validator";
 import { isAuthenticated } from "./middleware/auth";
 import { ZodError } from "zod";
+import bcrypt from "bcrypt";
 import { 
   insertTransactionSchema, 
   insertBudgetSchema, 
@@ -202,6 +203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Get single transaction
   app.get("/api/transactions/:id", 
+    isAuthenticated,
     param("id").isNumeric(),
     async (req: TypedRequestParams<{ id: string }>, res: Response) => {
       const errors = validationResult(req);
@@ -229,6 +231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Create transaction
   app.post("/api/transactions", 
+    isAuthenticated,
     body().custom(validateSchema),
     async (req: TypedRequestBody<InsertTransaction>, res: Response) => {
       const errors = validationResult(req);
@@ -237,8 +240,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       try {
-        // Get the active user
-        const user = await storage.getUserByUsername("user");
+        // Get the active user from session
+        if (!req.session || !req.session.userId) {
+          return res.status(401).json({ message: "Not authenticated" });
+        }
+        
+        const user = await storage.getUser(req.session.userId);
         if (!user) {
           return res.status(404).json({ message: "User not found" });
         }
@@ -258,6 +265,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Update transaction
   app.put("/api/transactions/:id", 
+    isAuthenticated,
     param("id").isNumeric(),
     body().custom(validateSchema),
     async (req: TypedRequest<{ id: string }, InsertTransaction>, res: Response) => {
@@ -272,8 +280,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "Invalid ID parameter" });
         }
 
-        // Get the active user
-        const user = await storage.getUserByUsername("user");
+        // Get the active user from session
+        if (!req.session || !req.session.userId) {
+          return res.status(401).json({ message: "Not authenticated" });
+        }
+        
+        const user = await storage.getUser(req.session.userId);
         if (!user) {
           return res.status(404).json({ message: "User not found" });
         }
@@ -297,6 +309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Delete transaction
   app.delete("/api/transactions/:id", 
+    isAuthenticated,
     param("id").isNumeric(),
     async (req, res) => {
       const errors = validationResult(req);
@@ -1205,14 +1218,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "Username already exists" });
         }
         
-        // Create new user
+        // Hash password
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        
+        // Create new user with hashed password
         const newUser = await storage.createUser({
           username,
           email,
-          password, // In a real app, this would be hashed using bcrypt
+          password: hashedPassword,
           fullName,
-          cashReserve: '0' // Default starting value as string
+          cashReserve: '0'
         });
+        
+        // Set session for immediate login
+        if (req.session) {
+          req.session.userId = newUser.id;
+          req.session.isAuthenticated = true;
+        }
         
         // Remove password from response
         const { password: _, ...userWithoutPassword } = newUser;
@@ -1246,8 +1269,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Find user by username
         const user = await storage.getUserByUsername(username);
         
-        // Check if user exists and password matches
-        if (!user || user.password !== password) { // In a real app, use proper password comparison with bcrypt
+        // Check if user exists
+        if (!user) {
+          return res.status(401).json({ message: "Invalid username or password" });
+        }
+        
+        // Compare password with hashed password
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        
+        // Log for debugging
+        console.log(`Login attempt: ${username}, Password match: ${passwordMatch}`);
+        
+        if (!passwordMatch) {
           return res.status(401).json({ message: "Invalid username or password" });
         }
         
@@ -1255,6 +1288,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (req.session) {
           req.session.userId = user.id;
           req.session.isAuthenticated = true;
+          
+          // Log session data for debugging
+          console.log('Session after login:', { 
+            userId: req.session.userId,
+            isAuthenticated: req.session.isAuthenticated 
+          });
         }
         
         // Remove password from response
@@ -1292,37 +1331,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get user profile
   app.get("/api/user/profile", async (req, res) => {
     try {
+      console.log('Received profile request. Session:', {
+        hasSession: !!req.session,
+        isAuthenticated: req.session?.isAuthenticated,
+        userId: req.session?.userId,
+      });
+
       // Check if user is authenticated via session
       if (req.session && req.session.userId) {
         // Get user from storage using session
         const user = await storage.getUser(req.session.userId);
         
         if (user) {
+          console.log(`Found user profile for ID ${req.session.userId}`);
           // Don't send password in the response
           const { password, ...userProfile } = user;
           return res.json(userProfile);
+        } else {
+          console.log(`User with ID ${req.session.userId} not found in database`);
         }
       }
       
-      // For development purposes, create/return a default user if no session
-      // In production, this would be removed and unauthorized access rejected
-      let user = await storage.getUserByUsername("user");
-      
-      if (!user) {
-        // Create a default user
-        user = await storage.createUser({
-          username: "user",
-          password: "password", // In a real app, this would be hashed
-          email: "user@example.com",
-          fullName: "Sample User"
-        });
-        console.log("Created default user:", user.id);
-      }
-      
-      // Don't send password in the response
-      const { password, ...userProfile } = user;
-      
-      res.json(userProfile);
+      // If no valid session or user not found, return 401 Unauthorized
+      console.log('User not authenticated or not found, returning 401');
+      return res.status(401).json({ message: "Not authenticated" });
     } catch (error) {
       console.error("Error getting user profile:", error);
       res.status(500).json({ message: "Failed to get user profile" });
